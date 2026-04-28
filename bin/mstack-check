@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 HOSTS_FILE="$ROOT/config/hosts.json"
+SKILLS_FILE="$ROOT/config/skills.json"
 
 fail() {
   echo "FAIL $*" >&2
@@ -16,14 +17,13 @@ ok() {
 cd "$ROOT"
 
 bash -n setup
-for script in bin/mstack-check bin/mstack-team-init bin/mstack-uninstall bin/mstack-upgrade; do
-  if [ -f "$script" ]; then
-    bash -n "$script"
-  fi
+for script in bin/mstack-check bin/mstack-config bin/mstack-team-init bin/mstack-uninstall bin/mstack-update-check bin/mstack-upgrade; do
+  bash -n "$script"
 done
-ok "shell syntax"
+python3 -m py_compile scripts/gen-skill-docs.py scripts/host_config.py scripts/messaging_eval.py scripts/skill-check.py
+ok "script syntax"
 
-python3 - "$HOSTS_FILE" ".codex-plugin/plugin.json" <<'PY'
+python3 - "$HOSTS_FILE" "$SKILLS_FILE" ".codex-plugin/plugin.json" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -37,48 +37,24 @@ for raw_path in sys.argv[1:]:
 PY
 ok "json manifests"
 
-python3 - "$ROOT" <<'PY'
-import re
-import sys
-from pathlib import Path
-
-root = Path(sys.argv[1])
-expected = [
-    "product-context",
-    "angle-review",
-    "write-product-update",
-    "critique-update",
-    "launch-pack",
-    "product-retro",
-]
-
-frontmatter = re.compile(r"^---\n(.*?)\n---\n", re.S)
-for name in ["SKILL.md", *[f"{skill}/SKILL.md" for skill in expected]]:
-    path = root / name
-    text = path.read_text()
-    match = frontmatter.match(text)
-    if not match:
-        raise SystemExit(f"{name}: missing YAML frontmatter")
-    header = match.group(1)
-    if not re.search(r"^name:\s+\S+", header, re.M):
-        raise SystemExit(f"{name}: missing name")
-    if not re.search(r"^description:\s+", header, re.M):
-        raise SystemExit(f"{name}: missing description")
-
-for skill in expected:
-    if not (root / skill / "agents" / "openai.yaml").exists():
-        raise SystemExit(f"{skill}: missing agents/openai.yaml")
-PY
-ok "skill frontmatter"
+python3 scripts/host_config.py validate >/dev/null
+python3 scripts/skill-check.py
+ok "skill docs"
 
 tmp_root="$(mktemp -d "${TMPDIR:-/tmp}/mstack-check.XXXXXX")"
 trap 'rm -rf "$tmp_root"' EXIT
 
-CODEX_HOME="$tmp_root/codex" ./setup --host codex --force --quiet
-CLAUDE_HOME="$tmp_root/claude" ./setup --host claude --force --quiet
-CODEX_HOME="$tmp_root/codex-noprefix" ./setup --host codex --no-prefix --force --quiet
-CODEX_HOME="$tmp_root/codex-copy" ./setup --host codex --copy --force --quiet
+MSTACK_HOME="$tmp_root/state" CODEX_HOME="$tmp_root/codex" ./setup --host codex --force --quiet
+MSTACK_HOME="$tmp_root/state" CLAUDE_HOME="$tmp_root/claude" ./setup --host claude --force --quiet
+MSTACK_HOME="$tmp_root/state" CODEX_HOME="$tmp_root/codex-noprefix" ./setup --host codex --no-prefix --force --quiet
+MSTACK_HOME="$tmp_root/state" CODEX_HOME="$tmp_root/codex-copy" ./setup --host codex --copy --force --quiet
 
+python3 scripts/host_config.py render --host codex --skill product-context --name mstack-product-context \
+  | cmp -s - "$tmp_root/codex/skills/mstack-product-context/SKILL.md" \
+  || fail "prefixed Codex install did not use host transform output"
+python3 scripts/host_config.py render --host claude --skill angle-review --name mstack-angle-review \
+  | cmp -s - "$tmp_root/claude/skills/mstack-angle-review/SKILL.md" \
+  || fail "prefixed Claude install did not use host transform output"
 grep -q '^name: mstack-product-context$' "$tmp_root/codex/skills/mstack-product-context/SKILL.md" \
   || fail "prefixed Codex install wrote wrong skill name"
 grep -q '^name: mstack-angle-review$' "$tmp_root/claude/skills/mstack-angle-review/SKILL.md" \
@@ -87,6 +63,53 @@ grep -q '^name: product-context$' "$tmp_root/codex-noprefix/skills/product-conte
   || fail "unprefixed install wrote wrong skill name"
 test -f "$tmp_root/codex-copy/skills/mstack-product-context/agents/openai.yaml" \
   || fail "copy install did not include agent metadata"
+test -f "$tmp_root/codex/skills/mstack-learn/agents/openai.yaml" \
+  || fail "learn skill was not installed with metadata"
+test -f "$tmp_root/state/.last-setup-version" \
+  || fail "setup did not write last setup version"
 
 ok "temp installs"
+
+bad_host_state="$tmp_root/bad-host-state"
+if MSTACK_HOME="$bad_host_state" ./setup --host does-not-exist --quiet >/dev/null 2>&1; then
+  fail "setup accepted unsupported host"
+fi
+test ! -e "$bad_host_state/.last-setup-version" \
+  || fail "setup wrote migration version for unsupported host"
+
+failing_root="$tmp_root/failing-migration-repo"
+cp -R "$ROOT" "$failing_root"
+rm -rf "$failing_root/.git" "$failing_root/.agents" "$failing_root/.claude" "$failing_root/scripts/__pycache__"
+cat > "$failing_root/mstack-upgrade/migrations/v0.1.0.sh" <<'SH'
+#!/usr/bin/env bash
+exit 42
+SH
+chmod +x "$failing_root/mstack-upgrade/migrations/v0.1.0.sh"
+if MSTACK_HOME="$tmp_root/failing-state" CODEX_HOME="$tmp_root/failing-codex" "$failing_root/setup" --host codex --quiet >/dev/null 2>&1; then
+  fail "setup succeeded after failing migration"
+fi
+test ! -e "$tmp_root/failing-state/.last-setup-version" \
+  || fail "setup wrote migration version after failing migration"
+
+team_project="$tmp_root/team-project"
+mkdir -p "$team_project"
+bin/mstack-team-init optional --project "$team_project" --host codex --force >/dev/null
+python3 - "$SKILLS_FILE" "$team_project/AGENTS.md" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+config = json.loads(Path(sys.argv[1]).read_text())
+text = Path(sys.argv[2]).read_text()
+for skill in config["skills"]:
+    route = config.get("routing", {}).get(skill, skill)
+    expected = f"{route} -> `/mstack-{skill}`"
+    if expected not in text:
+        raise SystemExit(f"missing generated team route: {expected}")
+PY
+ok "migration and team-init regressions"
+
+python3 scripts/messaging_eval.py --min-score 70
+ok "messaging evals"
+
 echo "mStack checks passed"

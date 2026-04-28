@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="${MSTACK_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)}"
+STATE_DIR="${MSTACK_HOME:-${MSTACK_STATE_DIR:-$HOME/.mstack}}"
+CACHE_FILE="$STATE_DIR/last-update-check"
+MARKER_FILE="$STATE_DIR/just-upgraded-from"
+VERSION_FILE="$ROOT/VERSION"
+REMOTE_URL="${MSTACK_REMOTE_VERSION_URL:-https://raw.githubusercontent.com/manimohans/mStack/main/VERSION}"
+
+if [ "${1:-}" = "--force" ]; then
+  rm -f "$CACHE_FILE"
+fi
+
+[ -f "$VERSION_FILE" ] || exit 0
+LOCAL="$(tr -d '[:space:]' < "$VERSION_FILE" 2>/dev/null || true)"
+[ -n "$LOCAL" ] || exit 0
+
+if [ -x "$ROOT/bin/mstack-config" ] && [ "$("$ROOT/bin/mstack-config" get update_check 2>/dev/null || true)" = "false" ]; then
+  exit 0
+fi
+
+mkdir -p "$STATE_DIR"
+
+if [ -f "$MARKER_FILE" ]; then
+  OLD="$(tr -d '[:space:]' < "$MARKER_FILE" 2>/dev/null || true)"
+  rm -f "$MARKER_FILE"
+  if [ -n "$OLD" ]; then
+    echo "JUST_UPGRADED $OLD $LOCAL"
+  fi
+fi
+
+if [ -f "$CACHE_FILE" ]; then
+  if [ -z "$(find "$CACHE_FILE" -mmin +720 2>/dev/null || true)" ]; then
+    CACHED="$(cat "$CACHE_FILE" 2>/dev/null || true)"
+    case "$CACHED" in
+      UP_TO_DATE\ "$LOCAL") exit 0 ;;
+      UPGRADE_AVAILABLE\ "$LOCAL"\ *) echo "$CACHED"; exit 0 ;;
+    esac
+  fi
+fi
+
+REMOTE="$(curl -fsL --max-time 5 "$REMOTE_URL" 2>/dev/null | tr -d '[:space:]' || true)"
+if ! printf '%s' "$REMOTE" | grep -qE '^[0-9]+(\.[0-9]+)+$'; then
+  echo "UP_TO_DATE $LOCAL" > "$CACHE_FILE"
+  exit 0
+fi
+
+if [ "$REMOTE" = "$LOCAL" ]; then
+  echo "UP_TO_DATE $LOCAL" > "$CACHE_FILE"
+  exit 0
+fi
+
+echo "UPGRADE_AVAILABLE $LOCAL $REMOTE" > "$CACHE_FILE"
+cat "$CACHE_FILE"

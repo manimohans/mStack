@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+SKILLS_FILE="$ROOT/config/skills.json"
 PROJECT="$(pwd -P)"
 MODE="optional"
 HOST="all"
@@ -58,25 +59,20 @@ esac
 mkdir -p "$PROJECT/.mstack"
 
 version="$(tr -d '[:space:]' < "$ROOT/VERSION")"
-python3 - "$PROJECT/.mstack/config.json" "$MODE" "$version" "$HOST" <<'PY'
+MSTACK_SKILLS_FILE="$SKILLS_FILE" python3 - "$PROJECT/.mstack/config.json" "$MODE" "$version" "$HOST" <<'PY'
 import json
+import os
 import sys
 from pathlib import Path
 
+skills = json.loads(Path(os.environ["MSTACK_SKILLS_FILE"]).read_text())["skills"]
 path = Path(sys.argv[1])
 data = {
     "workflow": "mstack",
     "mode": sys.argv[2],
     "version": sys.argv[3],
     "host": sys.argv[4],
-    "skills": [
-        "mstack-product-context",
-        "mstack-angle-review",
-        "mstack-write-product-update",
-        "mstack-critique-update",
-        "mstack-launch-pack",
-        "mstack-product-retro",
-    ],
+    "skills": [f"mstack-{skill}" for skill in skills],
 }
 path.write_text(json.dumps(data, indent=2) + "\n")
 PY
@@ -92,7 +88,9 @@ update_file() {
     fi
   fi
 
-  python3 - "$file" "$MODE" "$label" "$FORCE" <<'PY'
+MSTACK_SKILLS_FILE="$SKILLS_FILE" python3 - "$file" "$MODE" "$label" "$FORCE" <<'PY'
+import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -101,6 +99,9 @@ path = Path(sys.argv[1])
 mode = sys.argv[2]
 label = sys.argv[3]
 force = sys.argv[4] == "true"
+skills_config = json.loads(Path(os.environ["MSTACK_SKILLS_FILE"]).read_text())
+skills = skills_config["skills"]
+routing = skills_config.get("routing", {})
 
 intro = (
     "Use mStack for product communication work."
@@ -108,17 +109,17 @@ intro = (
     else "Use mStack for product communication work before drafting public launch or release copy."
 )
 
+route_lines = "\n".join(
+    f"- {routing.get(skill, skill.replace('-', ' ').capitalize())} -> `/mstack-{skill}`"
+    for skill in skills
+)
+
 block = f"""<!-- mstack:start -->
 ## mStack
 
 {intro}
 
-- Product ideas, release notes, PR summaries, customer pain, or launch context -> `/mstack-product-context`
-- Positioning, narrative, thesis, or angle review -> `/mstack-angle-review`
-- Product update, launch post, release email, or announcement drafting -> `/mstack-write-product-update`
-- Draft review or AI-gloss cleanup -> `/mstack-critique-update`
-- Channel-specific launch materials -> `/mstack-launch-pack`
-- Post-launch learning or messaging retro -> `/mstack-product-retro`
+{route_lines}
 
 If mStack was installed with `--no-prefix`, remove `mstack-` from the command names.
 <!-- mstack:end -->

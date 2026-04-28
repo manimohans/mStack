@@ -1,0 +1,28 @@
+{
+  "name": "incident-replay",
+  "min_words": 80,
+  "expected_terms": [
+    "incident replay",
+    "on-call",
+    "timeline",
+    "support",
+    "handoff"
+  ],
+  "proof_terms": [
+    "alert",
+    "timeline",
+    "support ticket",
+    "handoff"
+  ],
+  "tradeoff_terms": [
+    "not a root cause report",
+    "after the incident",
+    "instead"
+  ],
+  "banned_claims": [
+    "prevent every outage",
+    "guarantee uptime",
+    "eliminate incidents"
+  ],
+  "golden_output": "Incident replay is for the messy 60 minutes after an incident, not for pretending every outage can be prevented. On-call teams already have alerts, logs, support tickets, and Slack threads; the hard part is turning that material into one timeline someone can trust during handoff. This release pulls those pieces into one replay so support and engineering can agree on what happened before they write the customer note. We kept it separate from root cause reporting on purpose. Instead, the first job is shared memory after the incident. The deeper analysis can come later, once the team is no longer reconstructing the basics."
+}

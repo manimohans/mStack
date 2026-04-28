@@ -2,20 +2,12 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+SKILLS_FILE="$ROOT/config/skills.json"
 
 HOST=""
 PREFIX="__host_default__"
 FORCE="false"
 QUIET="false"
-
-SKILLS=(
-  "product-context"
-  "angle-review"
-  "write-product-update"
-  "critique-update"
-  "launch-pack"
-  "product-retro"
-)
 
 usage() {
   cat <<'EOF'
@@ -24,6 +16,16 @@ Usage: bin/mstack-uninstall [--host codex|claude|all] [--no-prefix] [--force] [-
 Removes mStack runtime skill directories from configured agent hosts.
 Use --force for non-interactive removal.
 EOF
+}
+
+list_skills() {
+  python3 - "$SKILLS_FILE" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+print("\n".join(json.loads(Path(sys.argv[1]).read_text())["skills"]))
+PY
 }
 
 log() {
@@ -152,13 +154,13 @@ remove_host() {
   install_prefix="$(host_prefix "$host")"
   targets+=("$dest/mstack")
 
-  for skill in "${SKILLS[@]}"; do
+  while IFS= read -r skill; do
     if [ -n "$install_prefix" ]; then
       targets+=("$dest/$install_prefix-$skill")
     else
       targets+=("$dest/$skill")
     fi
-  done
+  done < <(list_skills)
 
   confirm "$dest"
 

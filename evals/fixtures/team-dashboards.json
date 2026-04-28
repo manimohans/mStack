@@ -1,0 +1,28 @@
+{
+  "name": "team-dashboards",
+  "min_words": 80,
+  "expected_terms": [
+    "weekly status ritual",
+    "team dashboards",
+    "managers",
+    "CSV",
+    "Friday"
+  ],
+  "proof_terms": [
+    "exporting CSVs",
+    "every Friday",
+    "dashboard",
+    "status"
+  ],
+  "tradeoff_terms": [
+    "replace",
+    "not get prettier",
+    "instead"
+  ],
+  "banned_claims": [
+    "revolutionize team management",
+    "single source of truth",
+    "transform collaboration"
+  ],
+  "golden_output": "The weekly status ritual should disappear, not get prettier. Team dashboards replace the Friday CSV export that managers were using to reconstruct what happened across the team. Instead of asking every lead for a fresh status pass, managers can now see the live dashboard, spot the work that changed, and decide where follow-up is actually needed. We deliberately kept this release focused on the reporting loop rather than adding another planning surface. The point is not a more polished spreadsheet. It is fewer recurring status chores and a clearer view of team work before the week is already over."
+}

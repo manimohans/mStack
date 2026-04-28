@@ -8,11 +8,24 @@ mStack keeps host-specific install details in `config/hosts.json`. The installer
 {
   "hosts": {
     "codex": {
+      "displayName": "OpenAI Codex",
       "aliases": ["codex"],
       "homeEnv": "CODEX_HOME",
       "defaultHome": "~/.codex",
       "skillDir": "skills",
-      "defaultPrefix": "mstack"
+      "defaultPrefix": "mstack",
+      "generatedRoot": ".agents/skills/mstack",
+      "frontmatter": {
+        "mode": "allowlist",
+        "keepFields": ["name", "description"],
+        "descriptionLimit": 1024,
+        "descriptionLimitBehavior": "error"
+      },
+      "generation": {
+        "generateMetadata": true,
+        "metadataFormat": "openai.yaml"
+      },
+      "pathRewrites": []
     }
   }
 }
@@ -25,6 +38,10 @@ Fields:
 - `defaultHome`: fallback home directory when the env var is unset.
 - `skillDir`: skill directory relative to the host home.
 - `defaultPrefix`: expected skill prefix. Keep this as `mstack` unless the host has a hard technical reason not to.
+- `generatedRoot`: ignored sidecar path for host-transformed skill docs.
+- `frontmatter`: host-specific frontmatter allowlist and description limits.
+- `generation`: whether to generate sidecar metadata such as `agents/openai.yaml`.
+- `pathRewrites`: literal replacements applied to generated host docs.
 
 ## Add The Host
 
@@ -35,7 +52,13 @@ Fields:
 bin/mstack-check
 ```
 
-3. Test direct install:
+3. Generate host docs:
+
+```bash
+scripts/host_config.py generate --host new-host
+```
+
+4. Test direct install:
 
 ```bash
 HOST_HOME="$(mktemp -d)" ./setup --host new-host --force
@@ -43,13 +66,13 @@ HOST_HOME="$(mktemp -d)" ./setup --host new-host --force
 
 If the new host uses a different env var, replace `HOST_HOME` with the `homeEnv` value from `config/hosts.json`.
 
-4. Test `--host all`:
+5. Test `--host all`:
 
 ```bash
 ./setup --host all --force
 ```
 
-5. Update `README.md`, `CONTRIBUTING.md`, and any host-specific project guidance.
+6. Update `README.md`, `CONTRIBUTING.md`, and any host-specific project guidance.
 
 ## Host Contract
 

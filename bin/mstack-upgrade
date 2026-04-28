@@ -45,5 +45,14 @@ if [ ! -d .git ]; then
   exit 1
 fi
 
+old_version="$(tr -d '[:space:]' < VERSION 2>/dev/null || true)"
 git pull --ff-only
+new_version="$(tr -d '[:space:]' < VERSION 2>/dev/null || true)"
+state_dir="${MSTACK_HOME:-${MSTACK_STATE_DIR:-$HOME/.mstack}}"
+mkdir -p "$state_dir"
+
+if [ -n "$old_version" ] && [ "$old_version" != "$new_version" ]; then
+  echo "$old_version" > "$state_dir/just-upgraded-from"
+fi
+
 ./setup "${SETUP_ARGS[@]}"

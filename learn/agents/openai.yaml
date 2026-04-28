@@ -1,0 +1,4 @@
+interface:
+  display_name: "Learn"
+  short_description: "Search and save reusable product messaging learnings."
+  default_prompt: "Show or save reusable mStack learnings for this project."

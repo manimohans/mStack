@@ -1,18 +1,49 @@
 {
   "hosts": {
     "codex": {
+      "displayName": "OpenAI Codex",
       "aliases": ["codex"],
       "homeEnv": "CODEX_HOME",
       "defaultHome": "~/.codex",
       "skillDir": "skills",
-      "defaultPrefix": "mstack"
+      "defaultPrefix": "mstack",
+      "generatedRoot": ".agents/skills/mstack",
+      "frontmatter": {
+        "mode": "allowlist",
+        "keepFields": ["name", "description"],
+        "descriptionLimit": 1024,
+        "descriptionLimitBehavior": "error"
+      },
+      "generation": {
+        "generateMetadata": true,
+        "metadataFormat": "openai.yaml"
+      },
+      "pathRewrites": [
+        {
+          "from": "~/.claude/skills",
+          "to": "~/.codex/skills"
+        }
+      ]
     },
     "claude": {
+      "displayName": "Claude Code",
       "aliases": ["claude", "claude-code"],
       "homeEnv": "CLAUDE_HOME",
       "defaultHome": "~/.claude",
       "skillDir": "skills",
-      "defaultPrefix": "mstack"
+      "defaultPrefix": "mstack",
+      "generatedRoot": ".claude/skills/mstack",
+      "frontmatter": {
+        "mode": "allowlist",
+        "keepFields": ["name", "description"],
+        "descriptionLimit": null,
+        "descriptionLimitBehavior": "error"
+      },
+      "generation": {
+        "generateMetadata": false,
+        "metadataFormat": null
+      },
+      "pathRewrites": []
     }
   }
 }

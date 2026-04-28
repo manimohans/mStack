@@ -10,11 +10,14 @@ Use mStack skills for product messaging and launch communication tasks.
 - Draft critique and rewrite -> `/mstack-critique-update`
 - Launch asset packaging -> `/mstack-launch-pack`
 - Post-launch messaging retro -> `/mstack-product-retro`
+- Reusable voice, proof, positioning, customer-language, or launch lessons -> `/mstack-learn`
 
 If the project was installed with `./setup --no-prefix`, use the same commands without `mstack-`.
 
 ## Repo Operations
 
 - Run `bin/mstack-check` before committing infrastructure, installer, plugin metadata, or skill routing changes.
+- Edit `SKILL.md.tmpl` files and run `scripts/gen-skill-docs.py` to refresh generated skill docs and OpenAI metadata.
 - Host install metadata lives in `config/hosts.json`.
+- Installed skills are listed in `config/skills.json`.
 - Keep plugin-level metadata in `.codex-plugin/plugin.json`.

@@ -6,7 +6,7 @@ mStack turns a general coding agent into a product launch operator: someone who 
 
 This is not a prompt dump. It is an ordered communication loop:
 
-**Context -> Angle -> Draft -> Critique -> Package -> Learn**
+**Context -> Angle -> Draft -> Critique -> Package -> Retro -> Remember**
 
 ## Who This Is For
 
@@ -24,6 +24,7 @@ This is not a prompt dump. It is an ordered communication loop:
 5. Run `/mstack-critique-update` before publishing.
 6. Run `/mstack-launch-pack` for channel-specific launch assets.
 7. After launch, run `/mstack-product-retro` to capture what worked.
+8. Run `/mstack-learn` when you want durable voice, proof, positioning, or customer-language lessons available for the next launch.
 
 Stop after step 4 if you only need the core update.
 
@@ -85,6 +86,32 @@ Validate the repo before publishing changes:
 bin/mstack-check
 ```
 
+Regenerate skill docs and OpenAI host metadata after editing templates:
+
+```bash
+scripts/gen-skill-docs.py
+```
+
+Generate host-transformed sidecar docs for a specific host:
+
+```bash
+scripts/host_config.py generate --host codex
+scripts/host_config.py generate --host claude
+```
+
+Check for a newer upstream release without upgrading:
+
+```bash
+bin/mstack-update-check --force
+```
+
+Read or write local mStack preferences:
+
+```bash
+bin/mstack-config list
+bin/mstack-config set update_check false
+```
+
 ## Codex Plugin
 
 mStack includes a Codex plugin manifest at `.codex-plugin/plugin.json`. The repository root is the plugin root, and the manifest exposes the existing `SKILL.md` files through:
@@ -119,6 +146,7 @@ Use mStack for product communication work:
 - Draft review or AI-gloss cleanup -> `/mstack-critique-update`
 - Channel-specific launch materials -> `/mstack-launch-pack`
 - Post-launch learning or messaging retro -> `/mstack-product-retro`
+- Reusable voice, proof, positioning, customer-language, or launch lessons -> `/mstack-learn`
 ```
 
 If mStack was installed with `--no-prefix`, remove `mstack-` from the command names.
@@ -146,6 +174,9 @@ Agent: [flags generic claims, missing proof, and rewrites weak sections]
 
 You: /mstack-launch-pack
 Agent: [creates changelog, launch email, social post, internal Slack, sales note]
+
+You: /mstack-learn
+Agent: [saves the reusable positioning and voice lessons for future launches]
 ```
 
 ## The Workflow
@@ -159,7 +190,8 @@ Each skill does one job and hands useful context to the next one.
 | Draft | `/mstack-write-product-update` | Product Writer | Drafts the update around why now, opinion, tradeoffs, proof, and consequence. |
 | Critique | `/mstack-critique-update` | Editorial Reviewer | Scores and rewrites drafts for specificity, credibility, proof, voice, and AI gloss. |
 | Package | `/mstack-launch-pack` | Launch Operator | Converts the approved story into channel-specific launch assets. |
-| Learn | `/mstack-product-retro` | Messaging Analyst | Captures what worked, what confused users, and what to remember next time. |
+| Retro | `/mstack-product-retro` | Messaging Analyst | Captures what worked, what confused users, and what to remember next time. |
+| Remember | `/mstack-learn` | Messaging Memory | Searches and saves durable voice, proof, positioning, customer-language, and channel lessons. |
 
 ## Why Not Just Prompt The Agent?
 
@@ -184,21 +216,35 @@ mStack/
 |   `-- workflows/check.yml
 |-- bin/
 |   |-- mstack-check
+|   |-- mstack-config
 |   |-- mstack-team-init
 |   |-- mstack-uninstall
+|   |-- mstack-update-check
 |   `-- mstack-upgrade
 |-- config/
-|   `-- hosts.json
+|   |-- hosts.json
+|   `-- skills.json
 |-- docs/
 |   `-- ADDING_A_HOST.md
+|-- evals/
+|   `-- fixtures/
+|-- mstack-upgrade/
+|   `-- migrations/
+|-- scripts/
+|   |-- gen-skill-docs.py
+|   |-- host_config.py
+|   |-- messaging_eval.py
+|   `-- skill-check.py
 |-- product-context/
 |-- angle-review/
 |-- write-product-update/
 |-- critique-update/
 |-- launch-pack/
 |-- product-retro/
+|-- learn/
 |-- setup
 |-- SKILL.md
+|-- SKILL.md.tmpl
 |-- AGENTS.md
 |-- CLAUDE.md
 |-- CONTRIBUTING.md

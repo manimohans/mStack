@@ -1,0 +1,100 @@
+---
+name: learn
+description: >-
+  Search, save, prune, and export reusable product messaging learnings for mStack. Use when the user asks what this project has learned, wants to remember customer language, approved positioning, rejected phrases, proof points, launch outcomes, or voice preferences for future product updates.
+---
+
+# Learn
+
+## Standard
+
+Save reusable messaging judgment, not transient task notes. A good learning helps the next product update become more specific, credible, or on-voice.
+
+## Storage
+
+Use a local project file:
+
+```text
+~/.mstack/projects/{repo-slug}/learnings.jsonl
+```
+
+Each line should be compact JSON:
+
+```json
+{"ts":"2026-04-28T00:00:00Z","type":"voice|positioning|proof|customer-language|avoid|channel|retro","source":"brief|draft|retro|user","learning":"Concrete reusable lesson.","example":"Optional short example."}
+```
+
+Derive `{repo-slug}` from the git root path when available. If the current directory is not a git repo, use the current directory name.
+
+## Workflow
+
+1. Locate existing learnings.
+   Read `~/.mstack/projects/{repo-slug}/learnings.jsonl` if it exists. Summarize only relevant entries.
+
+2. Decide the operation.
+   - Search: return matching lessons grouped by type.
+   - Save: append only durable lessons.
+   - Prune: remove stale, duplicated, or vague lessons after showing what will change.
+   - Export: produce a concise Markdown brief for `AGENTS.md`, `CLAUDE.md`, a launch brief, or a brand/voice guide.
+
+3. Keep entries specific.
+   Prefer "Avoid 'all-in-one workspace' unless backed by integration proof" over "avoid generic claims."
+
+4. Protect source truth.
+   Never invent customer quotes, metrics, or proof. Mark uncertain learnings as hypotheses.
+
+## Useful Commands
+
+Find the project learning file:
+
+```bash
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd -P)"
+slug="$(printf '%s' "$repo_root" | tr '/[:space:]' '--' | tr -cd '[:alnum:]._-' | sed 's/^-*//;s/-*$//')"
+learn_file="$HOME/.mstack/projects/${slug:-default}/learnings.jsonl"
+mkdir -p "$(dirname "$learn_file")"
+printf '%s\n' "$learn_file"
+```
+
+Append a learning:
+
+```bash
+python3 - "$learn_file" <<'PY'
+import json
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+path = Path(sys.argv[1])
+path.parent.mkdir(parents=True, exist_ok=True)
+entry = {
+    "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    "type": "voice",
+    "source": "user",
+    "learning": "Replace this with the reusable lesson.",
+    "example": ""
+}
+with path.open("a") as f:
+    f.write(json.dumps(entry, separators=(",", ":")) + "\n")
+PY
+```
+
+## Output
+
+For search or export:
+
+```markdown
+## Relevant Learnings
+- {type}: {learning}
+
+## How This Should Affect The Next Update
+- {specific implication}
+```
+
+For save or prune:
+
+```markdown
+## Updated Learnings
+- Added: {count}
+- Removed: {count}
+- File: {path}
+```

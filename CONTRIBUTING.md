@@ -12,7 +12,7 @@ Run the full repo validation before opening a PR:
 bin/mstack-check
 ```
 
-This verifies shell syntax, JSON manifests, skill frontmatter, agent metadata, and temp installs for Codex and Claude Code.
+This verifies shell syntax, JSON manifests, host config, generated skill docs, agent metadata, temp installs for Codex and Claude Code, migrations, and messaging eval fixtures.
 
 ## Development Install
 
@@ -40,20 +40,56 @@ Default installs use the `mstack-` prefix:
 - `mstack-critique-update`
 - `mstack-launch-pack`
 - `mstack-product-retro`
+- `mstack-learn`
 
 Use `--no-prefix` only for local experiments where command collisions are acceptable.
 
 ## Adding A Skill
 
-1. Add the skill directory with `SKILL.md`.
-2. Add host metadata under `agents/openai.yaml` if the host UI should display a custom title or starter prompt.
-3. Add the directory name to the `SKILLS` array in `setup`, `bin/mstack-check`, and `bin/mstack-uninstall`.
-4. Update `SKILL.md`, `AGENTS.md`, `CLAUDE.md`, and `README.md` routing.
+1. Add the skill directory with `SKILL.md.tmpl`.
+2. Add the directory name to `config/skills.json`.
+3. Run `scripts/gen-skill-docs.py` to generate `SKILL.md` and `agents/openai.yaml`.
+4. Update `SKILL.md.tmpl`, `AGENTS.md`, `CLAUDE.md`, and `README.md` routing.
 5. Run `bin/mstack-check`.
+
+## Template Generation
+
+Edit `SKILL.md.tmpl` files first. Then run:
+
+```bash
+scripts/gen-skill-docs.py
+```
+
+Generated source docs should be fresh before committing:
+
+```bash
+scripts/gen-skill-docs.py --dry-run
+```
+
+Host-specific sidecars are generated from `config/hosts.json` and ignored by git:
+
+```bash
+scripts/host_config.py generate --host codex
+scripts/host_config.py generate --host claude
+```
+
+## Messaging Evals
+
+Add fixtures under `evals/fixtures/` when a workflow behavior should not regress. Run:
+
+```bash
+scripts/messaging_eval.py --min-score 70
+```
+
+The current model-free score checks specificity, proof, tradeoffs, banned claims, and AI-gloss terms.
 
 ## Adding A Host
 
 Add the host to `config/hosts.json`, then follow [docs/ADDING_A_HOST.md](docs/ADDING_A_HOST.md).
+
+## Migrations
+
+Install migrations live in `mstack-upgrade/migrations/v*.sh`. They run during `./setup` when the migration version is newer than `~/.mstack/.last-setup-version` and not newer than `VERSION`.
 
 ## Plugin Manifest
 

@@ -11,15 +11,8 @@ QUIET="false"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 HOSTS_FILE="$ROOT/config/hosts.json"
-
-SKILLS=(
-  "product-context"
-  "angle-review"
-  "write-product-update"
-  "critique-update"
-  "launch-pack"
-  "product-retro"
-)
+SKILLS_FILE="$ROOT/config/skills.json"
+STATE_DIR="${MSTACK_HOME:-${MSTACK_STATE_DIR:-$HOME/.mstack}}"
 
 usage() {
   cat <<'EOF'
@@ -98,6 +91,16 @@ print("\n".join(json.loads(Path(sys.argv[1]).read_text())["hosts"].keys()))
 PY
 }
 
+list_skills() {
+  python3 - "$SKILLS_FILE" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+print("\n".join(json.loads(Path(sys.argv[1]).read_text())["skills"]))
+PY
+}
+
 host_dest() {
   python3 - "$HOSTS_FILE" "$1" <<'PY'
 import json
@@ -165,10 +168,12 @@ copy_skill_dir() {
   local src="$1"
   local target="$2"
   local install_name="$3"
+  local host="$4"
+  local base="$5"
 
   mkdir -p "$target"
   cp -R "$src"/. "$target"/
-  sed "s/^name: .*/name: $install_name/" "$target/SKILL.md" > "$target/SKILL.md.tmp"
+  python3 "$ROOT/scripts/host_config.py" render --host "$host" --skill "$base" --name "$install_name" > "$target/SKILL.md.tmp"
   mv "$target/SKILL.md.tmp" "$target/SKILL.md"
 }
 
@@ -176,18 +181,23 @@ create_runtime_skill_dir() {
   local src="$1"
   local target="$2"
   local install_name="$3"
+  local host="$4"
+  local base="$5"
 
   mkdir -p "$target"
-  sed "s/^name: .*/name: $install_name/" "$src/SKILL.md" > "$target/SKILL.md"
+  python3 "$ROOT/scripts/host_config.py" render --host "$host" --skill "$base" --name "$install_name" > "$target/SKILL.md"
 
   if [ -d "$src/agents" ]; then
+    rm -rf "$target/agents"
     ln -s "$src/agents" "$target/agents"
   fi
 }
 
 install_root_skill() {
-  local dest="$1"
+  local host="$1"
+  local dest="$2"
   local target="$dest/mstack"
+  local tmp_file="$target/SKILL.md.tmp"
 
   if target_points_to "$target" "$ROOT"; then
     log "OK mstack already points at this checkout"
@@ -203,11 +213,8 @@ install_root_skill() {
 
   mkdir -p "$target"
 
-  if [ "$COPY_MODE" = "true" ]; then
-    cp "$ROOT/SKILL.md" "$target/SKILL.md"
-  else
-    ln -s "$ROOT/SKILL.md" "$target/SKILL.md"
-  fi
+  python3 "$ROOT/scripts/host_config.py" render --host "$host" --skill mstack --name mstack > "$tmp_file"
+  mv "$tmp_file" "$target/SKILL.md"
 
   log "INSTALLED mstack -> $target"
 }
@@ -236,9 +243,9 @@ install_skill() {
   fi
 
   if [ "$COPY_MODE" = "true" ]; then
-    copy_skill_dir "$src" "$target" "$install_name"
+    copy_skill_dir "$src" "$target" "$install_name" "$host" "$base"
   else
-    create_runtime_skill_dir "$src" "$target" "$install_name"
+    create_runtime_skill_dir "$src" "$target" "$install_name" "$host" "$base"
   fi
 
   log "INSTALLED $install_name -> $target"
@@ -253,16 +260,82 @@ install_host() {
   start_prefix="$(host_prefix "$host")"
   mkdir -p "$dest"
 
-  install_root_skill "$dest"
+  install_root_skill "$host" "$dest"
 
-  for skill in "${SKILLS[@]}"; do
+  while IFS= read -r skill; do
     install_skill "$host" "$dest" "$skill"
-  done
+  done < <(list_skills)
 
   log
   log "mStack ready for $host in $dest"
   log "Start with /${start_prefix:+$start_prefix-}product-context"
 }
+
+version_between() {
+  python3 - "$1" "$2" "$3" <<'PY'
+import sys
+
+last, migration, current = sys.argv[1:4]
+
+def parse(version: str) -> tuple[int, ...]:
+    return tuple(int(part) for part in version.split(".") if part.isdigit())
+
+last_v = parse(last) if last else tuple()
+migration_v = parse(migration)
+current_v = parse(current)
+raise SystemExit(0 if last_v < migration_v <= current_v else 1)
+PY
+}
+
+run_migrations() {
+  local current_version
+  local last_version
+  local migration
+  local migration_version
+
+  current_version="$(tr -d '[:space:]' < "$ROOT/VERSION" 2>/dev/null || true)"
+  [ -n "$current_version" ] || return 0
+
+  mkdir -p "$STATE_DIR"
+  if [ -f "$STATE_DIR/.last-setup-version" ]; then
+    last_version="$(tr -d '[:space:]' < "$STATE_DIR/.last-setup-version")"
+  else
+    last_version=""
+  fi
+
+  for migration in "$ROOT"/mstack-upgrade/migrations/v*.sh; do
+    [ -f "$migration" ] || continue
+    migration_version="$(basename "$migration" .sh)"
+    migration_version="${migration_version#v}"
+    if version_between "$last_version" "$migration_version" "$current_version"; then
+      log "MIGRATION v$migration_version"
+      bash "$migration"
+    fi
+  done
+}
+
+record_setup_version() {
+  local current_version
+
+  current_version="$(tr -d '[:space:]' < "$ROOT/VERSION" 2>/dev/null || true)"
+  [ -n "$current_version" ] || return 0
+  mkdir -p "$STATE_DIR"
+  echo "$current_version" > "$STATE_DIR/.last-setup-version"
+}
+
+validate_install_plan() {
+  if [ -z "$HOST" ]; then
+    detect_hosts >/dev/null
+  elif [ "$HOST" = "all" ]; then
+    list_hosts >/dev/null
+  else
+    host_dest "$HOST" >/dev/null
+    host_prefix "$HOST" >/dev/null
+  fi
+}
+
+validate_install_plan
+run_migrations
 
 if [ -z "$HOST" ]; then
   while IFS= read -r detected_host; do
@@ -275,3 +348,5 @@ elif [ "$HOST" = "all" ]; then
 else
   install_host "$HOST"
 fi
+
+record_setup_version
