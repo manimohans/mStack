@@ -1,0 +1,34 @@
+{
+  "name": "mstack",
+  "version": "0.1.0",
+  "description": "A product messaging workflow for turning release context into sharper updates, launch assets, and post-launch learning.",
+  "homepage": "https://github.com/manimohans/mStack",
+  "repository": "https://github.com/manimohans/mStack",
+  "license": "MIT",
+  "keywords": [
+    "product-marketing",
+    "launch",
+    "release-notes",
+    "positioning",
+    "writing",
+    "codex-skills"
+  ],
+  "skills": "./",
+  "interface": {
+    "displayName": "mStack",
+    "shortDescription": "Product messaging workflow for launches and updates.",
+    "longDescription": "mStack turns messy product context into a clear launch brief, pressure-tests the angle, drafts the update, critiques the copy, packages channel-specific launch assets, and captures reusable post-launch messaging lessons.",
+    "developerName": "mStack",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Collect launch context for this release.",
+      "Find the strongest angle for this update.",
+      "Turn this into a launch pack."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

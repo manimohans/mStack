@@ -1,21 +1,41 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+umask 077
+
 HOST=""
 PREFIX="mstack"
 FORCE="false"
+COPY_MODE="false"
+QUIET="false"
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+
+SKILLS=(
+  "product-context"
+  "angle-review"
+  "write-product-update"
+  "critique-update"
+  "launch-pack"
+  "product-retro"
+)
 
 usage() {
   cat <<'EOF'
-Usage: ./setup --host codex|claude [--no-prefix] [--force]
+Usage: ./setup [--host codex|claude|all] [--no-prefix] [--copy] [--force] [--quiet]
 
 Installs mStack skills into:
   codex  -> ~/.codex/skills
   claude -> ~/.claude/skills
 
-By default skills are installed as mstack-* to avoid collisions.
-Use --no-prefix to install short names.
+By default, setup creates lightweight runtime directories with host-safe skill
+names and symlinked support files. Use --copy for a standalone install. Skills
+are installed as mstack-* unless --no-prefix is passed.
 EOF
+}
+
+log() {
+  [ "$QUIET" = "true" ] || echo "$@"
 }
 
 while [ $# -gt 0 ]; do
@@ -28,8 +48,16 @@ while [ $# -gt 0 ]; do
       PREFIX=""
       shift
       ;;
+    --copy)
+      COPY_MODE="true"
+      shift
+      ;;
     --force)
       FORCE="true"
+      shift
+      ;;
+    --quiet)
+      QUIET="true"
       shift
       ;;
     -h|--help)
@@ -44,70 +72,165 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-if [ -z "$HOST" ]; then
-  echo "Missing --host codex|claude" >&2
-  usage
-  exit 1
-fi
+detect_hosts() {
+  local hosts=()
 
-case "$HOST" in
-  codex)
-    DEST="${CODEX_HOME:-$HOME/.codex}/skills"
-    ;;
-  claude|claude-code)
-    DEST="${CLAUDE_HOME:-$HOME/.claude}/skills"
-    ;;
-  *)
-    echo "Unsupported host: $HOST" >&2
-    exit 1
-    ;;
-esac
-
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-mkdir -p "$DEST"
-
-install_skill() {
-  local src="$1"
-  local base="$2"
-  local install_name="$base"
-
-  if [ -n "$PREFIX" ] && [ "$base" != "mstack" ]; then
-    install_name="$PREFIX-$base"
+  if [ -d "${CODEX_HOME:-$HOME/.codex}" ]; then
+    hosts+=("codex")
   fi
 
-  local target="$DEST/$install_name"
+  if [ -d "${CLAUDE_HOME:-$HOME/.claude}" ]; then
+    hosts+=("claude")
+  fi
+
+  if [ "${#hosts[@]}" -eq 0 ]; then
+    hosts+=("codex")
+  fi
+
+  printf '%s\n' "${hosts[@]}"
+}
+
+host_dest() {
+  case "$1" in
+    codex)
+      printf '%s\n' "${CODEX_HOME:-$HOME/.codex}/skills"
+      ;;
+    claude|claude-code)
+      printf '%s\n' "${CLAUDE_HOME:-$HOME/.claude}/skills"
+      ;;
+    *)
+      echo "Unsupported host: $1" >&2
+      exit 1
+      ;;
+  esac
+}
+
+remove_target() {
+  local target="$1"
+
+  if [ "$FORCE" != "true" ]; then
+    return 1
+  fi
+
+  rm -rf "$target"
+}
+
+target_points_to() {
+  local target="$1"
+  local expected="$2"
+
+  if [ -L "$target" ]; then
+    [ "$(cd "$(dirname "$(readlink "$target")")" 2>/dev/null && pwd -P)/$(basename "$(readlink "$target")")" = "$expected" ]
+    return
+  fi
+
+  [ -d "$target" ] && [ "$(cd "$target" 2>/dev/null && pwd -P)" = "$expected" ]
+}
+
+copy_skill_dir() {
+  local src="$1"
+  local target="$2"
+  local install_name="$3"
+
+  mkdir -p "$target"
+  cp -R "$src"/. "$target"/
+  sed "s/^name: .*/name: $install_name/" "$target/SKILL.md" > "$target/SKILL.md.tmp"
+  mv "$target/SKILL.md.tmp" "$target/SKILL.md"
+}
+
+create_runtime_skill_dir() {
+  local src="$1"
+  local target="$2"
+  local install_name="$3"
+
+  mkdir -p "$target"
+  sed "s/^name: .*/name: $install_name/" "$src/SKILL.md" > "$target/SKILL.md"
+
+  if [ -d "$src/agents" ]; then
+    ln -s "$src/agents" "$target/agents"
+  fi
+}
+
+install_root_skill() {
+  local dest="$1"
+  local target="$dest/mstack"
+
+  if target_points_to "$target" "$ROOT"; then
+    log "OK mstack already points at this checkout"
+    return
+  fi
 
   if [ -e "$target" ] || [ -L "$target" ]; then
-    if [ "$FORCE" != "true" ]; then
-      echo "SKIP $install_name already exists. Re-run with --force to replace."
+    if ! remove_target "$target"; then
+      log "SKIP mstack already exists. Re-run with --force to replace."
       return
     fi
-    rm -rf "$target"
   fi
 
   mkdir -p "$target"
 
-  if [ "$src" = "$ROOT" ]; then
+  if [ "$COPY_MODE" = "true" ]; then
     cp "$ROOT/SKILL.md" "$target/SKILL.md"
   else
-    cp -R "$src"/. "$target"/
+    ln -s "$ROOT/SKILL.md" "$target/SKILL.md"
   fi
 
-  tmp_file="$target/SKILL.md.tmp"
-  sed "s/^name: .*/name: $install_name/" "$target/SKILL.md" > "$tmp_file"
-  mv "$tmp_file" "$target/SKILL.md"
-
-  echo "INSTALLED $install_name -> $target"
+  log "INSTALLED mstack -> $target"
 }
 
-install_skill "$ROOT" "mstack"
-install_skill "$ROOT/product-context" "product-context"
-install_skill "$ROOT/angle-review" "angle-review"
-install_skill "$ROOT/write-product-update" "write-product-update"
-install_skill "$ROOT/critique-update" "critique-update"
-install_skill "$ROOT/launch-pack" "launch-pack"
-install_skill "$ROOT/product-retro" "product-retro"
+install_skill() {
+  local dest="$1"
+  local base="$2"
+  local src="$ROOT/$base"
+  local install_name="$base"
 
-echo
-echo "mStack installed for $HOST in $DEST"
-echo "Start with /${PREFIX:+$PREFIX-}product-context"
+  if [ -n "$PREFIX" ]; then
+    install_name="$PREFIX-$base"
+  fi
+
+  local target="$dest/$install_name"
+
+  if [ -e "$target" ] || [ -L "$target" ]; then
+    if ! remove_target "$target"; then
+      log "SKIP $install_name already exists. Re-run with --force to replace."
+      return
+    fi
+  fi
+
+  if [ "$COPY_MODE" = "true" ]; then
+    copy_skill_dir "$src" "$target" "$install_name"
+  else
+    create_runtime_skill_dir "$src" "$target" "$install_name"
+  fi
+
+  log "INSTALLED $install_name -> $target"
+}
+
+install_host() {
+  local host="$1"
+  local dest
+
+  dest="$(host_dest "$host")"
+  mkdir -p "$dest"
+
+  install_root_skill "$dest"
+
+  for skill in "${SKILLS[@]}"; do
+    install_skill "$dest" "$skill"
+  done
+
+  log
+  log "mStack ready for $host in $dest"
+  log "Start with /${PREFIX:+$PREFIX-}product-context"
+}
+
+if [ -z "$HOST" ]; then
+  while IFS= read -r detected_host; do
+    install_host "$detected_host"
+  done < <(detect_hosts)
+elif [ "$HOST" = "all" ]; then
+  install_host "codex"
+  install_host "claude"
+else
+  install_host "$HOST"
+fi

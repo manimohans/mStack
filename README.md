@@ -1,47 +1,100 @@
 # mStack
 
-> A product messaging workflow for Codex, Claude Code, and compatible agent hosts.
+> Product messaging workflow for Codex, Claude Code, and compatible agent hosts.
 
-mStack turns a general coding agent into a product launch operator: someone who can collect messy context, find the real angle, write the update, critique the draft, package the launch, and learn from what happened.
+mStack turns a general coding agent into a product launch operator: someone who can collect messy release context, find the real angle, write the update, critique the draft, package the launch, and learn from what happened.
 
-This is not a prompt dump. It is an ordered workflow for product communication.
+This is not a prompt dump. It is an ordered communication loop:
+
+**Context -> Angle -> Draft -> Critique -> Package -> Learn**
+
+## Who This Is For
+
+- Founders who need to explain what shipped without sounding generic.
+- Product marketers who want AI help without losing taste or company-specific context.
+- Developer-tool and SaaS teams turning product work into launch narratives.
+- Agents that need stronger written output than "we're excited to announce."
 
 ## Quick Start
 
 1. Install mStack.
-2. Start with `/mstack-product-context`.
-3. Run `/mstack-angle-review`.
-4. Run `/mstack-write-product-update`.
-5. Run `/mstack-critique-update`.
-6. Run `/mstack-launch-pack`.
-7. After launch, run `/mstack-product-retro`.
+2. Run `/mstack-product-context` with release notes, PRs, customer pain, or rough launch ideas.
+3. Run `/mstack-angle-review` to choose the strongest defensible thesis.
+4. Run `/mstack-write-product-update` to draft the core update.
+5. Run `/mstack-critique-update` before publishing.
+6. Run `/mstack-launch-pack` for channel-specific launch assets.
+7. After launch, run `/mstack-product-retro` to capture what worked.
+
+Stop after step 4 if you only need the core update.
 
 ## Install
 
-Clone this repo, then run:
+### Codex
 
 ```bash
-./setup --host codex
+git clone --single-branch --depth 1 https://github.com/manimohans/mStack.git ~/.codex/skills/mstack
+cd ~/.codex/skills/mstack && ./setup --host codex
 ```
 
-For Claude Code:
+### Claude Code
 
 ```bash
-./setup --host claude
+git clone --single-branch --depth 1 https://github.com/manimohans/mStack.git ~/.claude/skills/mstack
+cd ~/.claude/skills/mstack && ./setup --host claude
 ```
 
-Install locations:
+### Auto-detect Hosts
 
-| Host | Default skill directory |
-|---|---|
-| Codex | `~/.codex/skills/` |
-| Claude Code | `~/.claude/skills/` |
-
-Use short, unprefixed command names only if you are comfortable with possible name collisions:
+If you already have Codex or Claude Code installed locally, `setup` can detect the host directories:
 
 ```bash
+git clone --single-branch --depth 1 https://github.com/manimohans/mStack.git ~/mstack
+cd ~/mstack && ./setup
+```
+
+Install into both supported hosts:
+
+```bash
+./setup --host all
+```
+
+By default, setup creates lightweight runtime skill folders with host-safe command names and symlinked support files. Use `--copy` for a standalone copy, `--force` to replace an existing install, and `--no-prefix` only if you are comfortable with possible skill name collisions.
+
+```bash
+./setup --host codex --copy --force
 ./setup --host codex --no-prefix
 ```
+
+## Codex Plugin
+
+mStack includes a Codex plugin manifest at `.codex-plugin/plugin.json`. The repository root is the plugin root, and the manifest exposes the existing `SKILL.md` files through:
+
+```json
+{
+  "skills": "./"
+}
+```
+
+That means the same repo works as a skill checkout and as a plugin package. Keep new runtime assets beside the repo-level manifest instead of burying install-critical files inside an individual skill directory.
+
+## Add mStack To A Project
+
+For shared repos, add a short routing section to `AGENTS.md` or `CLAUDE.md` so teammates know when to use the workflow:
+
+```markdown
+## mStack
+
+Use mStack for product communication work:
+
+- Product ideas, release notes, PR summaries, customer pain, or launch context -> `/mstack-product-context`
+- Positioning, narrative, thesis, or angle review -> `/mstack-angle-review`
+- Product update, launch post, release email, or announcement drafting -> `/mstack-write-product-update`
+- Draft review or AI-gloss cleanup -> `/mstack-critique-update`
+- Channel-specific launch materials -> `/mstack-launch-pack`
+- Post-launch learning or messaging retro -> `/mstack-product-retro`
+```
+
+If mStack was installed with `--no-prefix`, remove `mstack-` from the command names.
 
 ## See It Work
 
@@ -66,29 +119,18 @@ You: /mstack-launch-pack
 Agent: [creates changelog, launch email, social post, internal Slack, sales note]
 ```
 
-## The Sprint
+## The Workflow
 
-mStack follows the product communication loop:
+Each skill does one job and hands useful context to the next one.
 
-**Context -> Angle -> Draft -> Critique -> Package -> Learn**
-
-Each skill feeds the next:
-
-| Skill | Specialist | What it does |
-|---|---|---|
-| `/mstack-product-context` | Product Reporter | Turns messy release notes, customer pain, PRs, support tickets, and founder notes into a launch brief. |
-| `/mstack-angle-review` | Positioning Editor | Finds the strongest defensible thesis and rejects generic feature-first framing. |
-| `/mstack-write-product-update` | Product Writer | Drafts the update around why now, opinion, tradeoffs, proof, and consequence. |
-| `/mstack-critique-update` | Editorial Reviewer | Scores and rewrites drafts for specificity, credibility, proof, voice, and AI gloss. |
-| `/mstack-launch-pack` | Launch Operator | Converts the approved story into channel-specific launch assets. |
-| `/mstack-product-retro` | Messaging Analyst | Captures what worked, what confused users, and what to remember next time. |
-
-## Who This Is For
-
-- Founders who need to explain what shipped without sounding generic.
-- Product marketers who want AI help without losing taste or company-specific context.
-- Developer-tool and SaaS teams turning product work into launch narratives.
-- Agents that need stronger written output than "we're excited to announce."
+| Stage | Skill | Specialist | What it does |
+|---|---|---|---|
+| Context | `/mstack-product-context` | Product Reporter | Turns messy release notes, customer pain, PRs, support tickets, and founder notes into a launch brief. |
+| Angle | `/mstack-angle-review` | Positioning Editor | Finds the strongest defensible thesis and rejects generic feature-first framing. |
+| Draft | `/mstack-write-product-update` | Product Writer | Drafts the update around why now, opinion, tradeoffs, proof, and consequence. |
+| Critique | `/mstack-critique-update` | Editorial Reviewer | Scores and rewrites drafts for specificity, credibility, proof, voice, and AI gloss. |
+| Package | `/mstack-launch-pack` | Launch Operator | Converts the approved story into channel-specific launch assets. |
+| Learn | `/mstack-product-retro` | Messaging Analyst | Captures what worked, what confused users, and what to remember next time. |
 
 ## Why Not Just Prompt The Agent?
 
@@ -107,6 +149,8 @@ mStack adds gates before and after drafting:
 
 ```text
 mStack/
+|-- .codex-plugin/
+|   `-- plugin.json
 |-- product-context/
 |-- angle-review/
 |-- write-product-update/
