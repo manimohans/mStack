@@ -6,22 +6,6 @@ mStack turns a general coding agent into a product launch operator: someone who 
 
 This is not a prompt dump. It is an ordered workflow for product communication.
 
-## Naming
-
-Working name: **mStack**.
-
-Abbreviation options for approval:
-
-| Name | Expansion | Why it fits |
-|---|---|---|
-| mStack | Messaging Stack | Most direct. Owns product messaging, launch writing, and positioning. |
-| mStack | Market Stack | Broader. Could grow into GTM, sales, launch, and customer insight workflows. |
-| mStack | Memo Stack | More founder-native. Focuses on clear thinking and written artifacts. |
-| SignalStack | Signal Stack | Stronger brand, less tied to the letter "m". Focuses on extracting signal from messy context. |
-| LaunchStack | Launch Stack | Clearest use case, but narrower than the long-term vision. |
-
-Until the name is approved, setup installs skills with the `mstack-` prefix by default to avoid collisions.
-
 ## Quick Start
 
 1. Install mStack.
