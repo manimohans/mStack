@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Product Update"
+  short_description: "Draft launch posts with a real argument."
+  default_prompt: "Write a product update from this context."

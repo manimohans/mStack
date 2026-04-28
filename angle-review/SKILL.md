@@ -1,0 +1,61 @@
+---
+name: angle-review
+description: >-
+  Find and pressure-test the strongest product story angle before drafting a launch post, product update, changelog narrative, release email, or announcement. Use after product context has been collected, or when the user asks what the update should really be about, what the thesis is, whether the launch story is compelling, or how to avoid generic feature-first messaging.
+---
+
+# Angle Review
+
+## Standard
+
+Treat the feature as evidence for a larger argument. Do not choose the safest angle. Choose the most defensible angle that only this company could credibly publish.
+
+## Review Modes
+
+- **Expansion:** The release may be bigger than the user's current framing. Look for the ambitious story hiding in the facts.
+- **Selective Expansion:** Keep the shipped scope, but surface stronger narrative angles the user can choose from.
+- **Hold Scope:** Do not widen the story. Make the current angle sharper and more credible.
+- **Reduction:** The story is overbuilt, vague, or inflated. Cut it down to the smallest honest claim.
+
+Default to Selective Expansion unless the user gives a different posture.
+
+## Workflow
+
+1. Identify candidate theses.
+   Generate 3-5 angles. Each should be a sentence a smart competitor might disagree with.
+
+2. Run the swap test.
+   For each angle, ask: could a competitor publish this unchanged? If yes, mark it weak and sharpen or discard it.
+
+3. Check evidence.
+   Map each angle to actual proof: workflow, user quote, data, before/after, design choice, technical constraint, or strategic bet.
+
+4. Name the tradeoff.
+   Every strong product story should reveal what the team chose not to do.
+
+5. Pick the angle.
+   Recommend one dominant thesis and explain why it is stronger than the alternatives.
+
+## Output
+
+```markdown
+## Recommended Angle
+{one sentence}
+
+## Why This Angle
+- {specific reason}
+
+## Alternatives Considered
+1. {angle} - {why weaker or when to use}
+2. {angle} - {why weaker or when to use}
+3. {angle} - {why weaker or when to use}
+
+## Proof Needed
+- {missing evidence}
+
+## Claims To Avoid
+- {unsupported claim}
+
+## Drafting Direction
+Open with {problem, shift, belief, or scene}. Introduce the product as {consequence of thesis}.
+```

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Product Retro"
+  short_description: "Capture launch learnings for future updates."
+  default_prompt: "Run a post-launch retro and capture reusable learnings."

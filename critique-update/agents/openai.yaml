@@ -1,0 +1,4 @@
+interface:
+  display_name: "Critique Update"
+  short_description: "Review product copy for specificity and proof."
+  default_prompt: "Critique this product update and rewrite the weak parts."

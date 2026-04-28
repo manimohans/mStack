@@ -1,0 +1,31 @@
+---
+name: mstack
+description: >-
+  Product messaging workflow router for mStack. Use when the user wants help turning a feature, release, PR, customer insight, changelog, launch idea, or rough draft into a strong product update, launch post, release email, social post, sales note, or post-launch learning loop.
+---
+
+# mStack
+
+## Workflow
+
+Use the smallest useful part of the loop:
+
+1. **Context** - Use the installed product-context skill when the raw material is messy or missing.
+2. **Angle** - Use the installed angle-review skill when the thesis, positioning, or story is unclear.
+3. **Draft** - Use the installed write-product-update skill when it is time to write or rewrite the core update.
+4. **Critique** - Use the installed critique-update skill when a draft exists and needs review.
+5. **Package** - Use the installed launch-pack skill when the story is approved and needs channel assets.
+6. **Learn** - Use the installed product-retro skill after launch to capture reusable messaging lessons.
+
+## Routing
+
+- Feature or release with rough notes -> `mstack-product-context` by default, or `product-context` if installed with `--no-prefix`
+- "What should the angle be?" -> `mstack-angle-review` by default, or `angle-review` if installed with `--no-prefix`
+- "Write the launch post/update/email" -> `mstack-write-product-update` by default, or `write-product-update` if installed with `--no-prefix`
+- "Review this draft" -> `mstack-critique-update` by default, or `critique-update` if installed with `--no-prefix`
+- "Turn this into launch assets" -> `mstack-launch-pack` by default, or `launch-pack` if installed with `--no-prefix`
+- "What did we learn from this launch?" -> `mstack-product-retro` by default, or `product-retro` if installed with `--no-prefix`
+
+## Standard
+
+The goal is memorable clarity, not volume. Prefer one defensible argument over many generic claims. Never invent proof. Mark placeholders clearly.

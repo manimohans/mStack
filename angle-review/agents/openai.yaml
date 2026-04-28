@@ -1,0 +1,4 @@
+interface:
+  display_name: "Angle Review"
+  short_description: "Find the strongest product argument."
+  default_prompt: "Find the strongest angle for this product update."

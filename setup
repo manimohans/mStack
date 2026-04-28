@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HOST=""
+PREFIX="mstack"
+FORCE="false"
+
+usage() {
+  cat <<'EOF'
+Usage: ./setup --host codex|claude [--no-prefix] [--force]
+
+Installs mStack skills into:
+  codex  -> ~/.codex/skills
+  claude -> ~/.claude/skills
+
+By default skills are installed as mstack-* to avoid collisions.
+Use --no-prefix to install short names.
+EOF
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --host)
+      HOST="${2:-}"
+      shift 2
+      ;;
+    --no-prefix)
+      PREFIX=""
+      shift
+      ;;
+    --force)
+      FORCE="true"
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+if [ -z "$HOST" ]; then
+  echo "Missing --host codex|claude" >&2
+  usage
+  exit 1
+fi
+
+case "$HOST" in
+  codex)
+    DEST="${CODEX_HOME:-$HOME/.codex}/skills"
+    ;;
+  claude|claude-code)
+    DEST="${CLAUDE_HOME:-$HOME/.claude}/skills"
+    ;;
+  *)
+    echo "Unsupported host: $HOST" >&2
+    exit 1
+    ;;
+esac
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+mkdir -p "$DEST"
+
+install_skill() {
+  local src="$1"
+  local base="$2"
+  local install_name="$base"
+
+  if [ -n "$PREFIX" ] && [ "$base" != "mstack" ]; then
+    install_name="$PREFIX-$base"
+  fi
+
+  local target="$DEST/$install_name"
+
+  if [ -e "$target" ] || [ -L "$target" ]; then
+    if [ "$FORCE" != "true" ]; then
+      echo "SKIP $install_name already exists. Re-run with --force to replace."
+      return
+    fi
+    rm -rf "$target"
+  fi
+
+  mkdir -p "$target"
+
+  if [ "$src" = "$ROOT" ]; then
+    cp "$ROOT/SKILL.md" "$target/SKILL.md"
+  else
+    cp -R "$src"/. "$target"/
+  fi
+
+  tmp_file="$target/SKILL.md.tmp"
+  sed "s/^name: .*/name: $install_name/" "$target/SKILL.md" > "$tmp_file"
+  mv "$tmp_file" "$target/SKILL.md"
+
+  echo "INSTALLED $install_name -> $target"
+}
+
+install_skill "$ROOT" "mstack"
+install_skill "$ROOT/product-context" "product-context"
+install_skill "$ROOT/angle-review" "angle-review"
+install_skill "$ROOT/write-product-update" "write-product-update"
+install_skill "$ROOT/critique-update" "critique-update"
+install_skill "$ROOT/launch-pack" "launch-pack"
+install_skill "$ROOT/product-retro" "product-retro"
+
+echo
+echo "mStack installed for $HOST in $DEST"
+echo "Start with /${PREFIX:+$PREFIX-}product-context"
