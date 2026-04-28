@@ -1,0 +1,80 @@
+# Contributing To mStack
+
+mStack is a messaging workflow, not a pile of prompts. Changes should preserve the loop:
+
+**Context -> Angle -> Draft -> Critique -> Package -> Learn**
+
+## Local Checks
+
+Run the full repo validation before opening a PR:
+
+```bash
+bin/mstack-check
+```
+
+This verifies shell syntax, JSON manifests, skill frontmatter, agent metadata, and temp installs for Codex and Claude Code.
+
+## Development Install
+
+For live local development, install from this checkout:
+
+```bash
+./setup --host codex --force
+```
+
+By default, setup creates small runtime skill directories and symlinks support files so edits in this repo are picked up without copying the whole repo into the host.
+
+Use a standalone copy when testing a packaged install:
+
+```bash
+./setup --host codex --copy --force
+```
+
+## Skill Naming
+
+Default installs use the `mstack-` prefix:
+
+- `mstack-product-context`
+- `mstack-angle-review`
+- `mstack-write-product-update`
+- `mstack-critique-update`
+- `mstack-launch-pack`
+- `mstack-product-retro`
+
+Use `--no-prefix` only for local experiments where command collisions are acceptable.
+
+## Adding A Skill
+
+1. Add the skill directory with `SKILL.md`.
+2. Add host metadata under `agents/openai.yaml` if the host UI should display a custom title or starter prompt.
+3. Add the directory name to the `SKILLS` array in `setup`, `bin/mstack-check`, and `bin/mstack-uninstall`.
+4. Update `SKILL.md`, `AGENTS.md`, `CLAUDE.md`, and `README.md` routing.
+5. Run `bin/mstack-check`.
+
+## Adding A Host
+
+Add the host to `config/hosts.json`, then follow [docs/ADDING_A_HOST.md](docs/ADDING_A_HOST.md).
+
+## Plugin Manifest
+
+The Codex plugin manifest lives at `.codex-plugin/plugin.json`. Keep repo-level plugin metadata there. Do not bury install-critical metadata inside an individual skill directory.
+
+When changing plugin metadata, run:
+
+```bash
+jq . .codex-plugin/plugin.json
+bin/mstack-check
+```
+
+## Release Checklist
+
+1. Update `VERSION`.
+2. Update `.codex-plugin/plugin.json` version.
+3. Run `bin/mstack-check`.
+4. Run a temp copy install:
+
+```bash
+CODEX_HOME="$(mktemp -d)" ./setup --host codex --copy --force
+```
+
+5. Commit with a concrete message.

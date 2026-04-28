@@ -4,12 +4,13 @@ set -euo pipefail
 umask 077
 
 HOST=""
-PREFIX="mstack"
+PREFIX="__host_default__"
 FORCE="false"
 COPY_MODE="false"
 QUIET="false"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+HOSTS_FILE="$ROOT/config/hosts.json"
 
 SKILLS=(
   "product-context"
@@ -24,9 +25,7 @@ usage() {
   cat <<'EOF'
 Usage: ./setup [--host codex|claude|all] [--no-prefix] [--copy] [--force] [--quiet]
 
-Installs mStack skills into:
-  codex  -> ~/.codex/skills
-  claude -> ~/.claude/skills
+Installs mStack skills into configured host skill directories.
 
 By default, setup creates lightweight runtime directories with host-safe skill
 names and symlinked support files. Use --copy for a standalone install. Skills
@@ -73,36 +72,71 @@ while [ $# -gt 0 ]; do
 done
 
 detect_hosts() {
-  local hosts=()
+  python3 - "$HOSTS_FILE" <<'PY'
+import json
+import os
+import sys
+from pathlib import Path
 
-  if [ -d "${CODEX_HOME:-$HOME/.codex}" ]; then
-    hosts+=("codex")
-  fi
+config = json.loads(Path(sys.argv[1]).read_text())
+found = []
+for name, host in config["hosts"].items():
+    home = Path(os.path.expanduser(os.environ.get(host["homeEnv"], host["defaultHome"])))
+    if home.exists():
+        found.append(name)
+print("\n".join(found or ["codex"]))
+PY
+}
 
-  if [ -d "${CLAUDE_HOME:-$HOME/.claude}" ]; then
-    hosts+=("claude")
-  fi
+list_hosts() {
+  python3 - "$HOSTS_FILE" <<'PY'
+import json
+import sys
+from pathlib import Path
 
-  if [ "${#hosts[@]}" -eq 0 ]; then
-    hosts+=("codex")
-  fi
-
-  printf '%s\n' "${hosts[@]}"
+print("\n".join(json.loads(Path(sys.argv[1]).read_text())["hosts"].keys()))
+PY
 }
 
 host_dest() {
-  case "$1" in
-    codex)
-      printf '%s\n' "${CODEX_HOME:-$HOME/.codex}/skills"
-      ;;
-    claude|claude-code)
-      printf '%s\n' "${CLAUDE_HOME:-$HOME/.claude}/skills"
-      ;;
-    *)
-      echo "Unsupported host: $1" >&2
-      exit 1
-      ;;
-  esac
+  python3 - "$HOSTS_FILE" "$1" <<'PY'
+import json
+import os
+import sys
+from pathlib import Path
+
+config = json.loads(Path(sys.argv[1]).read_text())
+requested = sys.argv[2]
+for name, host in config["hosts"].items():
+    if requested == name or requested in host.get("aliases", []):
+        home = os.environ.get(host["homeEnv"], host["defaultHome"])
+        print(str(Path(os.path.expanduser(home)) / host["skillDir"]))
+        break
+else:
+    raise SystemExit(f"Unsupported host: {requested}")
+PY
+}
+
+host_prefix() {
+  if [ "$PREFIX" != "__host_default__" ]; then
+    printf '%s\n' "$PREFIX"
+    return
+  fi
+
+  python3 - "$HOSTS_FILE" "$1" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+config = json.loads(Path(sys.argv[1]).read_text())
+requested = sys.argv[2]
+for name, host in config["hosts"].items():
+    if requested == name or requested in host.get("aliases", []):
+        print(host.get("defaultPrefix", "mstack"))
+        break
+else:
+    raise SystemExit(f"Unsupported host: {requested}")
+PY
 }
 
 remove_target() {
@@ -179,13 +213,17 @@ install_root_skill() {
 }
 
 install_skill() {
-  local dest="$1"
-  local base="$2"
+  local host="$1"
+  local dest="$2"
+  local base="$3"
   local src="$ROOT/$base"
   local install_name="$base"
+  local install_prefix
 
-  if [ -n "$PREFIX" ]; then
-    install_name="$PREFIX-$base"
+  install_prefix="$(host_prefix "$host")"
+
+  if [ -n "$install_prefix" ]; then
+    install_name="$install_prefix-$base"
   fi
 
   local target="$dest/$install_name"
@@ -209,19 +247,21 @@ install_skill() {
 install_host() {
   local host="$1"
   local dest
+  local start_prefix
 
   dest="$(host_dest "$host")"
+  start_prefix="$(host_prefix "$host")"
   mkdir -p "$dest"
 
   install_root_skill "$dest"
 
   for skill in "${SKILLS[@]}"; do
-    install_skill "$dest" "$skill"
+    install_skill "$host" "$dest" "$skill"
   done
 
   log
   log "mStack ready for $host in $dest"
-  log "Start with /${PREFIX:+$PREFIX-}product-context"
+  log "Start with /${start_prefix:+$start_prefix-}product-context"
 }
 
 if [ -z "$HOST" ]; then
@@ -229,8 +269,9 @@ if [ -z "$HOST" ]; then
     install_host "$detected_host"
   done < <(detect_hosts)
 elif [ "$HOST" = "all" ]; then
-  install_host "codex"
-  install_host "claude"
+  while IFS= read -r configured_host; do
+    install_host "$configured_host"
+  done < <(list_hosts)
 else
   install_host "$HOST"
 fi

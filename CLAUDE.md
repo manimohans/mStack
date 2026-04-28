@@ -12,3 +12,9 @@ Use mStack skills for product messaging and launch communication tasks.
 - Post-launch messaging retro -> `/mstack-product-retro`
 
 If the project was installed with `./setup --no-prefix`, use the same commands without `mstack-`.
+
+## Repo Operations
+
+- Run `bin/mstack-check` before committing infrastructure, installer, plugin metadata, or skill routing changes.
+- Host install metadata lives in `config/hosts.json`.
+- Keep plugin-level metadata in `.codex-plugin/plugin.json`.

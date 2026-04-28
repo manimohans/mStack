@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+
+HOST=""
+SETUP_ARGS=()
+
+usage() {
+  cat <<'EOF'
+Usage: bin/mstack-upgrade [--host codex|claude|all] [setup options]
+
+Pulls the latest mStack checkout with git pull --ff-only, then reruns setup.
+Any setup options after --host are forwarded to ./setup.
+EOF
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --host)
+      HOST="${2:-}"
+      SETUP_ARGS+=("--host" "$HOST")
+      shift 2
+      ;;
+    --no-prefix|--copy|--force|--quiet)
+      SETUP_ARGS+=("$1")
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+cd "$ROOT"
+
+if [ ! -d .git ]; then
+  echo "This mStack checkout is not a git repository. Reinstall from the repository URL instead." >&2
+  exit 1
+fi
+
+git pull --ff-only
+./setup "${SETUP_ARGS[@]}"

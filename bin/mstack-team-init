@@ -1,0 +1,158 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+PROJECT="$(pwd -P)"
+MODE="optional"
+HOST="all"
+FORCE="false"
+
+usage() {
+  cat <<'EOF'
+Usage: bin/mstack-team-init [optional|required] [--project PATH] [--host codex|claude|all] [--force]
+
+Adds mStack routing guidance to a project AGENTS.md and/or CLAUDE.md file and
+writes .mstack/config.json so teams can share the expected workflow.
+EOF
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    optional|required)
+      MODE="$1"
+      shift
+      ;;
+    --project)
+      PROJECT="$(cd "${2:-}" && pwd -P)"
+      shift 2
+      ;;
+    --host)
+      HOST="${2:-}"
+      shift 2
+      ;;
+    --force)
+      FORCE="true"
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+case "$HOST" in
+  codex|claude|claude-code|all)
+    ;;
+  *)
+    echo "Unsupported host: $HOST" >&2
+    exit 1
+    ;;
+esac
+
+mkdir -p "$PROJECT/.mstack"
+
+version="$(tr -d '[:space:]' < "$ROOT/VERSION")"
+python3 - "$PROJECT/.mstack/config.json" "$MODE" "$version" "$HOST" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = {
+    "workflow": "mstack",
+    "mode": sys.argv[2],
+    "version": sys.argv[3],
+    "host": sys.argv[4],
+    "skills": [
+        "mstack-product-context",
+        "mstack-angle-review",
+        "mstack-write-product-update",
+        "mstack-critique-update",
+        "mstack-launch-pack",
+        "mstack-product-retro",
+    ],
+}
+path.write_text(json.dumps(data, indent=2) + "\n")
+PY
+
+update_file() {
+  local file="$1"
+  local label="$2"
+
+  if [ -e "$file" ] && [ "$FORCE" != "true" ]; then
+    if grep -q '<!-- mstack:start -->' "$file"; then
+      echo "SKIP $file already contains mStack block. Re-run with --force to replace it."
+      return
+    fi
+  fi
+
+  python3 - "$file" "$MODE" "$label" "$FORCE" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+mode = sys.argv[2]
+label = sys.argv[3]
+force = sys.argv[4] == "true"
+
+intro = (
+    "Use mStack for product communication work."
+    if mode == "optional"
+    else "Use mStack for product communication work before drafting public launch or release copy."
+)
+
+block = f"""<!-- mstack:start -->
+## mStack
+
+{intro}
+
+- Product ideas, release notes, PR summaries, customer pain, or launch context -> `/mstack-product-context`
+- Positioning, narrative, thesis, or angle review -> `/mstack-angle-review`
+- Product update, launch post, release email, or announcement drafting -> `/mstack-write-product-update`
+- Draft review or AI-gloss cleanup -> `/mstack-critique-update`
+- Channel-specific launch materials -> `/mstack-launch-pack`
+- Post-launch learning or messaging retro -> `/mstack-product-retro`
+
+If mStack was installed with `--no-prefix`, remove `mstack-` from the command names.
+<!-- mstack:end -->
+"""
+
+text = path.read_text() if path.exists() else f"# {label}\n\n"
+pattern = re.compile(r"<!-- mstack:start -->.*?<!-- mstack:end -->\n?", re.S)
+
+if pattern.search(text):
+    if not force:
+        raise SystemExit(0)
+    text = pattern.sub(block, text)
+elif text.endswith("\n"):
+    text = text + "\n" + block
+else:
+    text = text + "\n\n" + block
+
+path.write_text(text)
+PY
+
+  echo "UPDATED $file"
+}
+
+case "$HOST" in
+  codex)
+    update_file "$PROJECT/AGENTS.md" "Agent Guide"
+    ;;
+  claude|claude-code)
+    update_file "$PROJECT/CLAUDE.md" "Claude Code Guide"
+    ;;
+  all)
+    update_file "$PROJECT/AGENTS.md" "Agent Guide"
+    update_file "$PROJECT/CLAUDE.md" "Claude Code Guide"
+    ;;
+esac
+
+echo "WROTE $PROJECT/.mstack/config.json"

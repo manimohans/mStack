@@ -65,6 +65,26 @@ By default, setup creates lightweight runtime skill folders with host-safe comma
 ./setup --host codex --no-prefix
 ```
 
+## Manage mStack
+
+Upgrade an existing checkout and rerun setup:
+
+```bash
+bin/mstack-upgrade --host codex --force
+```
+
+Uninstall generated runtime skill folders:
+
+```bash
+bin/mstack-uninstall --host codex --force
+```
+
+Validate the repo before publishing changes:
+
+```bash
+bin/mstack-check
+```
+
 ## Codex Plugin
 
 mStack includes a Codex plugin manifest at `.codex-plugin/plugin.json`. The repository root is the plugin root, and the manifest exposes the existing `SKILL.md` files through:
@@ -81,6 +101,13 @@ That means the same repo works as a skill checkout and as a plugin package. Keep
 
 For shared repos, add a short routing section to `AGENTS.md` or `CLAUDE.md` so teammates know when to use the workflow:
 
+```bash
+bin/mstack-team-init optional --project /path/to/project
+bin/mstack-team-init required --project /path/to/project
+```
+
+The generated routing block looks like this:
+
 ```markdown
 ## mStack
 
@@ -95,6 +122,8 @@ Use mStack for product communication work:
 ```
 
 If mStack was installed with `--no-prefix`, remove `mstack-` from the command names.
+
+`mstack-team-init` also writes `.mstack/config.json` so teams can see whether mStack is optional or required for product communication work in that repo.
 
 ## See It Work
 
@@ -151,6 +180,17 @@ mStack adds gates before and after drafting:
 mStack/
 |-- .codex-plugin/
 |   `-- plugin.json
+|-- .github/
+|   `-- workflows/check.yml
+|-- bin/
+|   |-- mstack-check
+|   |-- mstack-team-init
+|   |-- mstack-uninstall
+|   `-- mstack-upgrade
+|-- config/
+|   `-- hosts.json
+|-- docs/
+|   `-- ADDING_A_HOST.md
 |-- product-context/
 |-- angle-review/
 |-- write-product-update/
@@ -161,6 +201,7 @@ mStack/
 |-- SKILL.md
 |-- AGENTS.md
 |-- CLAUDE.md
+|-- CONTRIBUTING.md
 `-- VERSION
 ```
 

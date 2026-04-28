@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+
+HOST=""
+PREFIX="__host_default__"
+FORCE="false"
+QUIET="false"
+
+SKILLS=(
+  "product-context"
+  "angle-review"
+  "write-product-update"
+  "critique-update"
+  "launch-pack"
+  "product-retro"
+)
+
+usage() {
+  cat <<'EOF'
+Usage: bin/mstack-uninstall [--host codex|claude|all] [--no-prefix] [--force] [--quiet]
+
+Removes mStack runtime skill directories from configured agent hosts.
+Use --force for non-interactive removal.
+EOF
+}
+
+log() {
+  [ "$QUIET" = "true" ] || echo "$@"
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --host)
+      HOST="${2:-}"
+      shift 2
+      ;;
+    --no-prefix)
+      PREFIX=""
+      shift
+      ;;
+    --force)
+      FORCE="true"
+      shift
+      ;;
+    --quiet)
+      QUIET="true"
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+host_dest() {
+  python3 - "$ROOT/config/hosts.json" "$1" <<'PY'
+import json
+import os
+import sys
+from pathlib import Path
+
+config = json.loads(Path(sys.argv[1]).read_text())
+requested = sys.argv[2]
+for name, host in config["hosts"].items():
+    if requested == name or requested in host.get("aliases", []):
+        home = os.environ.get(host["homeEnv"], host["defaultHome"])
+        print(str(Path(os.path.expanduser(home)) / host["skillDir"]))
+        break
+else:
+    raise SystemExit(f"Unsupported host: {requested}")
+PY
+}
+
+host_prefix() {
+  if [ "$PREFIX" != "__host_default__" ]; then
+    printf '%s\n' "$PREFIX"
+    return
+  fi
+
+  python3 - "$ROOT/config/hosts.json" "$1" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+config = json.loads(Path(sys.argv[1]).read_text())
+requested = sys.argv[2]
+for name, host in config["hosts"].items():
+    if requested == name or requested in host.get("aliases", []):
+        print(host.get("defaultPrefix", "mstack"))
+        break
+else:
+    raise SystemExit(f"Unsupported host: {requested}")
+PY
+}
+
+detect_hosts() {
+  python3 - "$ROOT/config/hosts.json" <<'PY'
+import json
+import os
+from pathlib import Path
+
+config = json.loads(Path(__import__("sys").argv[1]).read_text())
+found = []
+for name, host in config["hosts"].items():
+    home = Path(os.path.expanduser(os.environ.get(host["homeEnv"], host["defaultHome"])))
+    if home.exists():
+        found.append(name)
+print("\n".join(found or ["codex"]))
+PY
+}
+
+confirm() {
+  local dest="$1"
+
+  if [ "$FORCE" = "true" ]; then
+    return 0
+  fi
+
+  if [ ! -t 0 ]; then
+    echo "Refusing to uninstall from $dest without --force in a non-interactive shell." >&2
+    exit 1
+  fi
+
+  printf 'Remove mStack runtime skills from %s? [y/N] ' "$dest"
+  read -r answer
+  case "$answer" in
+    y|Y|yes|YES)
+      return 0
+      ;;
+    *)
+      echo "Aborted."
+      exit 1
+      ;;
+  esac
+}
+
+remove_host() {
+  local host="$1"
+  local dest
+  local install_prefix
+  local targets=()
+
+  dest="$(host_dest "$host")"
+  install_prefix="$(host_prefix "$host")"
+  targets+=("$dest/mstack")
+
+  for skill in "${SKILLS[@]}"; do
+    if [ -n "$install_prefix" ]; then
+      targets+=("$dest/$install_prefix-$skill")
+    else
+      targets+=("$dest/$skill")
+    fi
+  done
+
+  confirm "$dest"
+
+  for target in "${targets[@]}"; do
+    if [ -e "$target" ] || [ -L "$target" ]; then
+      rm -rf "$target"
+      log "REMOVED $target"
+    else
+      log "SKIP missing $target"
+    fi
+  done
+}
+
+if [ -z "$HOST" ]; then
+  while IFS= read -r detected_host; do
+    remove_host "$detected_host"
+  done < <(detect_hosts)
+elif [ "$HOST" = "all" ]; then
+  while IFS= read -r configured_host; do
+    remove_host "$configured_host"
+  done < <(python3 - "$ROOT/config/hosts.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+print("\n".join(json.loads(Path(sys.argv[1]).read_text())["hosts"].keys()))
+PY
+)
+else
+  remove_host "$HOST"
+fi

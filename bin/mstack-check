@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+HOSTS_FILE="$ROOT/config/hosts.json"
+
+fail() {
+  echo "FAIL $*" >&2
+  exit 1
+}
+
+ok() {
+  echo "OK $*"
+}
+
+cd "$ROOT"
+
+bash -n setup
+for script in bin/mstack-check bin/mstack-team-init bin/mstack-uninstall bin/mstack-upgrade; do
+  if [ -f "$script" ]; then
+    bash -n "$script"
+  fi
+done
+ok "shell syntax"
+
+python3 - "$HOSTS_FILE" ".codex-plugin/plugin.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+for raw_path in sys.argv[1:]:
+    path = Path(raw_path)
+    try:
+        json.loads(path.read_text())
+    except Exception as exc:
+        raise SystemExit(f"{path}: invalid JSON: {exc}")
+PY
+ok "json manifests"
+
+python3 - "$ROOT" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+expected = [
+    "product-context",
+    "angle-review",
+    "write-product-update",
+    "critique-update",
+    "launch-pack",
+    "product-retro",
+]
+
+frontmatter = re.compile(r"^---\n(.*?)\n---\n", re.S)
+for name in ["SKILL.md", *[f"{skill}/SKILL.md" for skill in expected]]:
+    path = root / name
+    text = path.read_text()
+    match = frontmatter.match(text)
+    if not match:
+        raise SystemExit(f"{name}: missing YAML frontmatter")
+    header = match.group(1)
+    if not re.search(r"^name:\s+\S+", header, re.M):
+        raise SystemExit(f"{name}: missing name")
+    if not re.search(r"^description:\s+", header, re.M):
+        raise SystemExit(f"{name}: missing description")
+
+for skill in expected:
+    if not (root / skill / "agents" / "openai.yaml").exists():
+        raise SystemExit(f"{skill}: missing agents/openai.yaml")
+PY
+ok "skill frontmatter"
+
+tmp_root="$(mktemp -d "${TMPDIR:-/tmp}/mstack-check.XXXXXX")"
+trap 'rm -rf "$tmp_root"' EXIT
+
+CODEX_HOME="$tmp_root/codex" ./setup --host codex --force --quiet
+CLAUDE_HOME="$tmp_root/claude" ./setup --host claude --force --quiet
+CODEX_HOME="$tmp_root/codex-noprefix" ./setup --host codex --no-prefix --force --quiet
+CODEX_HOME="$tmp_root/codex-copy" ./setup --host codex --copy --force --quiet
+
+grep -q '^name: mstack-product-context$' "$tmp_root/codex/skills/mstack-product-context/SKILL.md" \
+  || fail "prefixed Codex install wrote wrong skill name"
+grep -q '^name: mstack-angle-review$' "$tmp_root/claude/skills/mstack-angle-review/SKILL.md" \
+  || fail "prefixed Claude install wrote wrong skill name"
+grep -q '^name: product-context$' "$tmp_root/codex-noprefix/skills/product-context/SKILL.md" \
+  || fail "unprefixed install wrote wrong skill name"
+test -f "$tmp_root/codex-copy/skills/mstack-product-context/agents/openai.yaml" \
+  || fail "copy install did not include agent metadata"
+
+ok "temp installs"
+echo "mStack checks passed"

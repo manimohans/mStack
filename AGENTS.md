@@ -16,3 +16,9 @@ If installed without the default prefix, remove `mstack-` from the skill names a
 ## Voice
 
 Use concrete product language. Avoid generic launch phrasing, unsupported claims, and empty marketing intensity.
+
+## Repo Operations
+
+- Run `bin/mstack-check` before committing infrastructure, installer, plugin metadata, or skill routing changes.
+- Host install metadata lives in `config/hosts.json`; do not hardcode new host paths in `setup` unless the host needs a genuinely different layout.
+- Keep plugin-level metadata in `.codex-plugin/plugin.json`.

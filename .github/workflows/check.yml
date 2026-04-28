@@ -1,0 +1,15 @@
+name: mStack checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run mStack checks
+        run: bin/mstack-check

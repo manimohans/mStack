@@ -1,0 +1,18 @@
+{
+  "hosts": {
+    "codex": {
+      "aliases": ["codex"],
+      "homeEnv": "CODEX_HOME",
+      "defaultHome": "~/.codex",
+      "skillDir": "skills",
+      "defaultPrefix": "mstack"
+    },
+    "claude": {
+      "aliases": ["claude", "claude-code"],
+      "homeEnv": "CLAUDE_HOME",
+      "defaultHome": "~/.claude",
+      "skillDir": "skills",
+      "defaultPrefix": "mstack"
+    }
+  }
+}
