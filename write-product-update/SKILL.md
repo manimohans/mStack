@@ -1,11 +1,9 @@
 ---
 name: write-product-update
 description: >-
-  Draft, critique, or rewrite public-facing product updates, launch posts, release emails,
-  changelog narratives, and feature announcements so they explain why the work matters, defend
-  a real point of view, show product tradeoffs, and avoid generic AI-sounding prose. Use when
-  asked to write or improve product communication for a startup, SaaS product, developer tool,
-  feature launch, release note, customer update, or AI-assisted announcement.
+  Use when asked to write or improve a public-facing product update, launch post, release
+  email, changelog narrative, feature announcement, release note, customer update, or startup,
+  SaaS, developer-tool, or AI-assisted product communication draft.
 ---
 
 # Write Product Update
@@ -24,7 +22,7 @@ Treat the feature as evidence for a larger argument:
 ## Workflow
 
 1. Collect or infer the messy context before drafting.
-   Use available customer conversations, support tickets, Slack threads, design notes, PRs, rejected ideas, constraints, founder commentary, sales objections, usage data, and release scope. If context is thin, explicitly say what is missing and use labeled placeholders.
+   Use available customer conversations, support tickets, Slack threads, design notes, PRs, rejected ideas, constraints, founder commentary, sales objections, usage data, release scope, and durable mStack learnings. If context is thin, explicitly say what is missing and use labeled placeholders.
 
 2. Find the argument.
    Answer these questions before writing:
@@ -37,11 +35,17 @@ Treat the feature as evidence for a larger argument:
 3. Pick one angle.
    Prefer a narrow, defensible claim over a broad celebration. The product should feel like the consequence of the thesis, not the thesis itself.
 
-4. Draft human-first.
+4. Choose the right format.
+   Match the channel before writing: changelog, launch post, release email, customer note, founder note, or social post. Preserve the same argument, but adjust density, proof, and CTA.
+
+5. Draft human-first.
    Use concrete scenes, choices, customer language, and constraints. Avoid the default launch-post rhythm: "We're excited to announce...", feature list, screenshot, "can't wait for you to try it."
 
-5. Revise for specificity.
+6. Revise for specificity.
    Replace abstractions with the actual workflow, user, cost, risk, or decision. Cut empty intensifiers, hype, corporate smoothing, and model-familiar filler such as "delve", "seamless", "unlock", "game-changing", "supercharge", and "leverage" unless source text intentionally uses them.
+
+7. Label uncertainty.
+   Do not fabricate metrics, customer quotes, screenshots, timelines, or outcomes. Use brackets for missing facts and keep them easy to replace.
 
 ## Recommended Structure
 
@@ -65,6 +69,7 @@ For blog posts, let the strategic argument breathe before introducing feature de
 If unspecified, return:
 
 - A one-sentence angle.
+- The intended reader and channel.
 - The draft or rewrite.
 - A short note listing private-context details that would make it stronger.
 

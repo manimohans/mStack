@@ -1,4 +1,4 @@
 interface:
   display_name: "Angle Review"
-  short_description: "Find the strongest product argument."
-  default_prompt: "Find the strongest angle for this product update."
+  short_description: "Pressure-test and choose the strongest angle."
+  default_prompt: "Review the product context, generate competing angles, run the swap test, and recommend the strongest defensible thesis."

@@ -1,10 +1,9 @@
 ---
 name: mstack
 description: >-
-  Product messaging workflow router for mStack. Use when the user wants help turning a
-  feature, release, PR, customer insight, changelog, launch idea, or rough draft into a strong
-  product update, launch post, release email, social post, sales note, or post-launch learning
-  loop.
+  Use when the user wants help turning a feature, release, PR, customer insight, changelog,
+  launch idea, rough draft, or post-launch result into product messaging, launch assets, or
+  reusable messaging learning.
 ---
 
 # mStack
@@ -21,6 +20,8 @@ Use the smallest useful part of the loop:
 6. **Learn** - Use the installed product-retro skill after launch to capture reusable messaging lessons.
 7. **Remember** - Use the installed learn skill to search or save durable voice, proof, positioning, customer-language, and launch lessons.
 
+Before drafting, check whether durable project learnings exist and whether the user already supplied enough source material. If context is thin, ask for the single missing input that would most improve the result instead of asking a long questionnaire.
+
 ## Routing
 
 - Feature or release with rough notes -> `mstack-product-context` by default, or `product-context` if installed with `--no-prefix`
@@ -33,4 +34,4 @@ Use the smallest useful part of the loop:
 
 ## Standard
 
-The goal is memorable clarity, not volume. Prefer one defensible argument over many generic claims. Never invent proof. Mark placeholders clearly.
+The goal is memorable clarity, not volume. Prefer one defensible argument over many generic claims. Never invent proof, metrics, customer quotes, or shipped scope. Mark placeholders clearly, preserve useful source language, and separate facts from hypotheses.

@@ -1,4 +1,4 @@
 interface:
   display_name: "Product Context"
-  short_description: "Collect messy launch context before drafting."
-  default_prompt: "Collect the messy product context for this launch."
+  short_description: "Organize messy launch inputs before drafting."
+  default_prompt: "Turn these product notes into a launch context brief. Separate confirmed facts, assumptions, missing proof, and claims to avoid."

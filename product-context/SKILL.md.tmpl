@@ -1,7 +1,7 @@
 ---
 name: product-context
 description: >-
-  Collect messy product, customer, market, and release context before writing a product update, launch post, changelog narrative, release email, or announcement. Use when the user has a feature, release, customer problem, PR, support thread, Slack notes, founder notes, or vague launch idea and needs the raw material organized before angle selection or drafting.
+  Use when the user has a feature, release, customer problem, PR, support thread, Slack notes, founder notes, market shift, or vague launch idea and needs product context organized before angle selection, drafting, or launch planning.
 ---
 
 # Product Context
@@ -18,11 +18,12 @@ The brief should answer:
 - What tradeoffs or constraints shaped the release?
 - What proof can the update use?
 - What should not be claimed?
+- Who needs to act after reading this, and what action matters?
 
 ## Workflow
 
 1. Gather inputs.
-   Read the user's notes and, when relevant, inspect local docs, PRs, changelogs, tickets, transcripts, screenshots, or specs they mention. If source context is thin, ask for the single highest-value missing input.
+   Read the user's notes and, when relevant, inspect local docs, PRs, changelogs, tickets, transcripts, screenshots, specs, analytics, or support threads they mention. If source context is thin, ask for the single highest-value missing input and keep going with labeled assumptions.
 
 2. Sort the evidence.
    Group facts into: user pain, market shift, product behavior, team belief, tradeoffs, proof, objections, and unknowns.
@@ -33,7 +34,10 @@ The brief should answer:
 4. Define the release boundary.
    Separate what shipped, what is planned, what was rejected, and what should not be implied.
 
-5. Produce a launch brief.
+5. Rate evidence strength.
+   Mark each major claim as confirmed, inferred, or missing. Do not turn guesses into facts.
+
+6. Produce a launch brief.
    Use this format:
 
 ```markdown
@@ -41,6 +45,10 @@ The brief should answer:
 
 ## One-Line Summary
 {plain English description of what changed}
+
+## Audience And Action
+- Audience: {primary reader}
+- Desired action: {try, migrate, reply, buy, share, enable, wait, or other}
 
 ## User Pain
 - {specific workflow, cost, or frustration}
@@ -62,6 +70,11 @@ The brief should answer:
 ## Proof
 - {customer quote, usage data, benchmark, example, before/after, PR, screenshot, or demo path}
 
+## Evidence Confidence
+- Confirmed: {facts}
+- Inferred: {assumptions}
+- Missing: {needed proof}
+
 ## Smart Skeptic Questions
 - {question}
 
@@ -74,4 +87,4 @@ The brief should answer:
 
 ## Output
 
-Return the brief first. Then list the 3-5 missing details that would most improve the eventual update.
+Return the brief first. Then list the 3-5 missing details that would most improve the eventual update, ranked by impact.

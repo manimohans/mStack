@@ -32,11 +32,26 @@ def require_frontmatter(path: Path) -> str:
     return header
 
 
+def description_from_header(header: str) -> str:
+    block = re.search(r"^description:\s*>-\n((?:  .*\n?)*)", header, re.M)
+    if block:
+        return " ".join(line.strip() for line in block.group(1).splitlines()).strip()
+
+    single = re.search(r"^description:\s*(.*)$", header, re.M)
+    if single:
+        return single.group(1).strip().strip("\"'")
+
+    return ""
+
+
 def validate_skill(path: Path, expected_name: str) -> None:
     header = require_frontmatter(path)
     name = re.search(r"^name:\s+(.+)$", header, re.M)
     if name and name.group(1).strip() != expected_name:
         fail(f"{path.relative_to(ROOT)}: expected name {expected_name}, got {name.group(1).strip()}")
+    description = description_from_header(header)
+    if not description.startswith("Use when "):
+        fail(f"{path.relative_to(ROOT)}: description must start with 'Use when '")
     if len(header) > 1800:
         fail(f"{path.relative_to(ROOT)}: frontmatter is too long for portable host metadata")
 

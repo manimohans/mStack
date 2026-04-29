@@ -1,17 +1,16 @@
 ---
 name: critique-update
 description: >-
-  Review, score, and rewrite product updates, launch posts, changelog narratives, release
-  emails, and feature announcements for specificity, proof, argument quality, credibility,
-  voice, and AI gloss. Use when the user has an existing draft and wants a sharper, less
-  generic, more defensible product story.
+  Use when the user has an existing product update, launch post, changelog narrative, release
+  email, feature announcement, or AI-generated product draft and wants critique, scoring,
+  cleanup, stronger proof, sharper voice, or a less generic product story.
 ---
 
 # Critique Update
 
 ## Review Posture
 
-Lead with the highest-impact issues. Be direct. Do not compliment filler. If the draft is generic, say exactly where and why.
+Lead with the highest-impact issues. Be direct. Do not compliment filler. If the draft is generic, quote the smallest useful phrase and explain exactly why it fails.
 
 ## Checklist
 
@@ -26,6 +25,7 @@ Evaluate the draft on:
 - AI gloss: does it sound polished but information-poor?
 - Voice mismatch: does it sound like the company or like a generic launch template?
 - Unsupported claim: does it imply outcomes the evidence does not prove?
+- Buried reader action: is the reader left unsure what to do next?
 
 ## Scoring
 
@@ -45,8 +45,10 @@ Do not average into a fake precise score unless useful. A short scorecard is eno
 1. Read the full draft and any supporting context.
 2. Identify the 3-5 highest-impact issues.
 3. Recommend the angle the rewrite should use.
-4. Rewrite the weak sections or the full draft, depending on user request.
-5. List missing private context that would make the draft materially stronger.
+4. Separate copy problems from strategy problems.
+   Copy problems can be edited directly. Strategy problems need missing proof, clearer audience, or a narrower claim.
+5. Rewrite the weak sections or the full draft, depending on user request.
+6. List missing private context that would make the draft materially stronger.
 
 ## Output
 
@@ -63,6 +65,10 @@ Do not average into a fake precise score unless useful. A short scorecard is eno
 
 ## Recommended Rewrite Direction
 {one sentence}
+
+## Keep / Cut
+- Keep: {specific phrase, proof, structure, or claim worth preserving}
+- Cut: {specific phrase, claim, section, or rhythm to remove}
 
 ## Rewrite
 {revised copy}

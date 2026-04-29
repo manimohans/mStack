@@ -1,11 +1,9 @@
 ---
 name: angle-review
 description: >-
-  Find and pressure-test the strongest product story angle before drafting a launch post,
-  product update, changelog narrative, release email, or announcement. Use after product
-  context has been collected, or when the user asks what the update should really be about,
-  what the thesis is, whether the launch story is compelling, or how to avoid generic
-  feature-first messaging.
+  Use when product context exists and the user asks what the update should really be about,
+  what the thesis is, whether the launch story is compelling, how to avoid generic
+  feature-first messaging, or which product angle is strongest.
 ---
 
 # Angle Review
@@ -26,7 +24,7 @@ Default to Selective Expansion unless the user gives a different posture.
 ## Workflow
 
 1. Identify candidate theses.
-   Generate 3-5 angles. Each should be a sentence a smart competitor might disagree with.
+   Generate 3-5 angles. Each should name the audience, the shift or pain, and a sentence a smart competitor might disagree with.
 
 2. Run the swap test.
    For each angle, ask: could a competitor publish this unchanged? If yes, mark it weak and sharpen or discard it.
@@ -37,7 +35,10 @@ Default to Selective Expansion unless the user gives a different posture.
 4. Name the tradeoff.
    Every strong product story should reveal what the team chose not to do.
 
-5. Pick the angle.
+5. Check launch fit.
+   Note which channel or audience the angle best serves, and whether it needs more proof before publication.
+
+6. Pick the angle.
    Recommend one dominant thesis and explain why it is stronger than the alternatives.
 
 ## Output
@@ -45,6 +46,9 @@ Default to Selective Expansion unless the user gives a different posture.
 ```markdown
 ## Recommended Angle
 {one sentence}
+
+## Best-Fit Audience
+{reader, buyer, user, internal team, or channel}
 
 ## Why This Angle
 - {specific reason}
@@ -56,6 +60,9 @@ Default to Selective Expansion unless the user gives a different posture.
 
 ## Proof Needed
 - {missing evidence}
+
+## Tradeoff To Name
+- {choice, constraint, refusal, or product boundary}
 
 ## Claims To Avoid
 - {unsupported claim}

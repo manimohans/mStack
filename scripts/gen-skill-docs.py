@@ -17,32 +17,32 @@ SKILLS_FILE = ROOT / "config" / "skills.json"
 
 OPENAI_OVERRIDES = {
     "product-context": (
-        "Collect messy launch context before drafting.",
-        "Collect the messy product context for this launch.",
+        "Organize messy launch inputs before drafting.",
+        "Turn these product notes into a launch context brief. Separate confirmed facts, assumptions, missing proof, and claims to avoid.",
     ),
     "angle-review": (
-        "Find the strongest product argument.",
-        "Find the strongest angle for this product update.",
+        "Pressure-test and choose the strongest angle.",
+        "Review the product context, generate competing angles, run the swap test, and recommend the strongest defensible thesis.",
     ),
     "write-product-update": (
-        "Draft launch posts with a real argument.",
-        "Write a product update from this context.",
+        "Write product updates with proof and opinion.",
+        "Write or rewrite this product update around one defensible angle, concrete proof, tradeoffs, and a clear reader action.",
     ),
     "critique-update": (
-        "Review product copy for specificity and proof.",
-        "Critique this product update and rewrite the weak parts.",
+        "Critique product copy for proof and voice.",
+        "Critique this draft for generic claims, missing proof, weak angle, voice mismatch, and unsupported promises. Rewrite the weak parts.",
     ),
     "launch-pack": (
-        "Turn an approved update into launch assets.",
-        "Create launch assets from this approved product update.",
+        "Adapt an approved story into launch assets.",
+        "Create channel-specific launch assets from the approved thesis. Keep the claim consistent while adapting proof, CTA, and tone.",
     ),
     "product-retro": (
-        "Capture launch learnings for future updates.",
-        "Run a post-launch retro and capture reusable learnings.",
+        "Capture useful post-launch messaging lessons.",
+        "Run a post-launch messaging retro. Separate measured evidence, qualitative signals, product learning, and reusable messaging lessons.",
     ),
     "learn": (
-        "Search and save reusable product messaging learnings.",
-        "Show or save reusable mStack learnings for this project.",
+        "Search and save reusable messaging memory.",
+        "Search, save, prune, or export durable product messaging learnings for this project. Keep entries specific and source-grounded.",
     ),
 }
 

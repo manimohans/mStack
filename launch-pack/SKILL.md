@@ -1,17 +1,16 @@
 ---
 name: launch-pack
 description: >-
-  Turn an approved product update or launch argument into a coordinated launch asset pack:
-  blog post, changelog, release email, social posts, Slack/internal announcement, sales note,
-  customer support note, and founder talking points. Use after a draft or angle is approved
-  and the user wants channel-specific launch materials.
+  Use when a product update, launch angle, or product story is approved and the user wants
+  channel-specific launch materials such as a blog post, changelog, release email, social
+  posts, Slack or internal announcement, sales note, support note, or founder talking points.
 ---
 
 # Launch Pack
 
 ## Standard
 
-Keep the same thesis across channels, but change density, proof, CTA, and tone for each audience. Do not paste the same paragraph everywhere.
+Keep the same thesis across channels, but change density, proof, CTA, risk level, and tone for each audience. Do not paste the same paragraph everywhere.
 
 ## Channel Rules
 
@@ -30,16 +29,19 @@ Keep the same thesis across channels, but change density, proof, CTA, and tone f
    Identify the approved thesis, product facts, proof, CTA, and claims to avoid.
 
 2. Build a message map.
-   Capture: core claim, audience-specific pain, proof, CTA, and banned claims.
+   Capture: core claim, audience-specific pain, proof, CTA, product boundary, owner, timing, and banned claims.
 
 3. Generate assets.
    Produce only the channels requested by the user. If unspecified, create: changelog, release email, social post, internal Slack, sales note.
 
 4. Preserve consistency.
-   Ensure every asset uses the same core claim and does not invent proof.
+   Ensure every asset uses the same core claim and does not invent proof, roadmap promises, metrics, customer quotes, or availability details.
 
 5. Add review notes.
    Flag where legal, customer approval, screenshot, or metric validation is needed.
+
+6. Add execution details when useful.
+   Include subject lines, preview text, audience, CTA, owner, and timing only when they help the user publish.
 
 ## Output
 
@@ -48,6 +50,8 @@ Keep the same thesis across channels, but change density, proof, CTA, and tone f
 - Thesis:
 - Proof:
 - CTA:
+- Audience:
+- Product boundary:
 - Claims to avoid:
 
 ## Assets

@@ -1,17 +1,16 @@
 ---
 name: product-retro
 description: >-
-  Run a post-launch product messaging retrospective after a product update, launch post,
-  release email, changelog, or announcement ships. Use when the user wants to learn what
-  messaging worked, what confused users, which proof mattered, what objections appeared, and
-  what should be remembered for future launches.
+  Use when a product update, launch post, release email, changelog, or announcement has
+  shipped and the user wants to learn what messaging worked, what confused users, which proof
+  mattered, what objections appeared, or what should be remembered for future launches.
 ---
 
 # Product Retro
 
 ## Standard
 
-Capture reusable learning, not vanity reporting. The goal is to make the next launch sharper.
+Capture reusable learning, not vanity reporting. The goal is to make the next launch sharper by changing the angle, proof, audience, sequence, CTA, or channel mix.
 
 ## Inputs
 
@@ -40,13 +39,16 @@ If metrics are unavailable, run a qualitative retro and mark unknowns.
 3. Separate product learning from message learning.
    Product learning changes the roadmap. Message learning changes positioning, proof, sequencing, or channel choice.
 
-4. Capture reusable patterns.
+4. Rate confidence.
+   Distinguish measured evidence, repeated qualitative signals, one-off anecdotes, and team hypotheses.
+
+5. Capture reusable patterns.
    Save specific language, objections, examples, proof formats, and anti-patterns.
 
-5. Recommend the next experiment.
+6. Recommend the next experiment.
    Choose one change for the next launch: angle, proof, audience, format, CTA, or timing.
 
-6. Persist durable learnings.
+7. Persist durable learnings.
    If the retro produces reusable voice, positioning, proof, channel, or anti-pattern lessons, suggest saving them through `mstack-learn`. When the user agrees, append compact JSONL entries under `~/.mstack/projects/{repo-slug}/learnings.jsonl`.
 
 ## Output
@@ -65,6 +67,11 @@ If metrics are unavailable, run a qualitative retro and mark unknowns.
 - Confused:
 - Ignored:
 - Challenged:
+
+## Evidence Quality
+- Measured:
+- Qualitative:
+- Hypothesis:
 
 ## Reusable Learnings
 - Keep:

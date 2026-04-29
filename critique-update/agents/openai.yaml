@@ -1,4 +1,4 @@
 interface:
   display_name: "Critique Update"
-  short_description: "Review product copy for specificity and proof."
-  default_prompt: "Critique this product update and rewrite the weak parts."
+  short_description: "Critique product copy for proof and voice."
+  default_prompt: "Critique this draft for generic claims, missing proof, weak angle, voice mismatch, and unsupported promises. Rewrite the weak parts."

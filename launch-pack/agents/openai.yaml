@@ -1,4 +1,4 @@
 interface:
   display_name: "Launch Pack"
-  short_description: "Turn an approved update into launch assets."
-  default_prompt: "Create launch assets from this approved product update."
+  short_description: "Adapt an approved story into launch assets."
+  default_prompt: "Create channel-specific launch assets from the approved thesis. Keep the claim consistent while adapting proof, CTA, and tone."

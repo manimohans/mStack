@@ -1,4 +1,4 @@
 interface:
   display_name: "Product Retro"
-  short_description: "Capture launch learnings for future updates."
-  default_prompt: "Run a post-launch retro and capture reusable learnings."
+  short_description: "Capture useful post-launch messaging lessons."
+  default_prompt: "Run a post-launch messaging retro. Separate measured evidence, qualitative signals, product learning, and reusable messaging lessons."
