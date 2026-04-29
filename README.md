@@ -112,6 +112,13 @@ bin/mstack-config list
 bin/mstack-config set update_check false
 ```
 
+Collect source context from GitHub refs and local files before writing a launch brief:
+
+```bash
+bin/mstack-source-intake --repo owner/project pr:123 CHANGELOG.md docs/release-notes.md
+bin/mstack-source-intake --format json https://github.com/owner/project/issues/456
+```
+
 ## Codex Plugin
 
 mStack includes a Codex plugin manifest at `.codex-plugin/plugin.json`. The repository root is the plugin root, and the manifest exposes the existing `SKILL.md` files through:

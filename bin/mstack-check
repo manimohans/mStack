@@ -17,10 +17,11 @@ ok() {
 cd "$ROOT"
 
 bash -n setup
-for script in bin/mstack-check bin/mstack-config bin/mstack-team-init bin/mstack-uninstall bin/mstack-update-check bin/mstack-upgrade; do
+for script in bin/mstack-check bin/mstack-config bin/mstack-source-intake bin/mstack-team-init bin/mstack-uninstall bin/mstack-update-check bin/mstack-upgrade; do
   bash -n "$script"
 done
-python3 -m py_compile scripts/gen-skill-docs.py scripts/host_config.py scripts/messaging_eval.py scripts/skill-check.py
+python3 -m py_compile scripts/gen-skill-docs.py scripts/host_config.py scripts/messaging_eval.py scripts/skill-check.py scripts/source_intake.py
+python3 scripts/source_intake.py --self-test >/dev/null
 ok "script syntax"
 
 python3 - "$HOSTS_FILE" "$SKILLS_FILE" ".codex-plugin/plugin.json" <<'PY'
