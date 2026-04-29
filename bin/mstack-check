@@ -68,6 +68,12 @@ test -f "$tmp_root/codex/skills/mstack-learn/agents/openai.yaml" \
   || fail "learn skill was not installed with metadata"
 test -f "$tmp_root/state/.last-setup-version" \
   || fail "setup did not write last setup version"
+test -x "$tmp_root/codex/skills/mstack/bin/mstack-source-intake" \
+  || fail "source-intake helper was not installed"
+"$tmp_root/codex/skills/mstack/bin/mstack-source-intake" --self-test >/dev/null \
+  || fail "installed source-intake helper failed self-test"
+test -f "$tmp_root/codex-copy/skills/mstack/scripts/source_intake.py" \
+  || fail "copy install did not include source-intake support script"
 
 ok "temp installs"
 

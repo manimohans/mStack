@@ -25,7 +25,16 @@ The brief should answer:
 ## Workflow
 
 1. Gather inputs.
-   Read the user's notes and, when relevant, inspect local docs, PRs, changelogs, tickets, transcripts, screenshots, specs, analytics, or support threads they mention. When the user mentions GitHub PRs, issues, changelogs, docs, specs, or local release files, run `bin/mstack-source-intake` with those refs first and use its output as source-grounded input. If source context is thin, ask for the single highest-value missing input and keep going with labeled assumptions.
+   Read the user's notes and, when relevant, inspect local docs, PRs, changelogs, tickets, transcripts, screenshots, specs, analytics, or support threads they mention. When the user mentions GitHub PRs, issues, changelogs, docs, specs, or local release files, run the installed source-intake helper with those refs first and use its output as source-grounded input. Resolve the helper with:
+
+   ```bash
+   helper="${CODEX_HOME:-$HOME/.codex}/skills/mstack/bin/mstack-source-intake"
+   [ -x "$helper" ] || helper="${CLAUDE_HOME:-$HOME/.claude}/skills/mstack/bin/mstack-source-intake"
+   [ -x "$helper" ] || helper="bin/mstack-source-intake"
+   "$helper" SOURCE...
+   ```
+
+   If source context is thin, ask for the single highest-value missing input and keep going with labeled assumptions.
 
 2. Sort the evidence.
    Group facts into: user pain, market shift, product behavior, team belief, tradeoffs, proof, objections, and unknowns.

@@ -177,6 +177,22 @@ copy_skill_dir() {
   mv "$target/SKILL.md.tmp" "$target/SKILL.md"
 }
 
+install_support_dir() {
+  local name="$1"
+  local target="$2"
+  local src="$ROOT/$name"
+  local dest="$target/$name"
+
+  [ -d "$src" ] || return 0
+  rm -rf "$dest"
+
+  if [ "$COPY_MODE" = "true" ]; then
+    cp -R "$src" "$dest"
+  else
+    ln -s "$src" "$dest"
+  fi
+}
+
 create_runtime_skill_dir() {
   local src="$1"
   local target="$2"
@@ -215,6 +231,8 @@ install_root_skill() {
 
   python3 "$ROOT/scripts/host_config.py" render --host "$host" --skill mstack --name mstack > "$tmp_file"
   mv "$tmp_file" "$target/SKILL.md"
+  install_support_dir bin "$target"
+  install_support_dir scripts "$target"
 
   log "INSTALLED mstack -> $target"
 }
