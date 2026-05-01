@@ -32,6 +32,10 @@ OPENAI_OVERRIDES = {
         "Critique product copy for proof and voice.",
         "Critique this draft for generic claims, missing proof, weak angle, voice mismatch, and unsupported promises. Rewrite the weak parts.",
     ),
+    "claim-check": (
+        "Audit launch claims before publishing.",
+        "Check this product draft against source context. Classify claims as confirmed, inferred, or missing, and block unsupported metrics or quotes.",
+    ),
     "launch-pack": (
         "Adapt an approved story into launch assets.",
         "Create channel-specific launch assets from the approved thesis. Keep the claim consistent while adapting proof, CTA, and tone.",
