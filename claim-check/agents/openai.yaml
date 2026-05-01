@@ -1,0 +1,4 @@
+interface:
+  display_name: "Claim Check"
+  short_description: "Audit launch claims before publishing."
+  default_prompt: "Check this product draft against source context. Classify claims as confirmed, inferred, or missing, and block unsupported metrics or quotes."

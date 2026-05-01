@@ -49,6 +49,7 @@ Do not average into a fake precise score unless useful. A short scorecard is eno
    Copy problems can be edited directly. Strategy problems need missing proof, clearer audience, or a narrower claim.
 5. Rewrite the weak sections or the full draft, depending on user request.
 6. List missing private context that would make the draft materially stronger.
+7. If the draft is close to publishable and source context exists, recommend running `mstack-claim-check` before publication to audit claims, metrics, and quotes against proof.
 
 ## Output
 

@@ -16,9 +16,10 @@ Use the smallest useful part of the loop:
 2. **Angle** - Use the installed angle-review skill when the thesis, positioning, or story is unclear.
 3. **Draft** - Use the installed write-product-update skill when it is time to write or rewrite the core update.
 4. **Critique** - Use the installed critique-update skill when a draft exists and needs review.
-5. **Package** - Use the installed launch-pack skill when the story is approved and needs channel assets.
-6. **Learn** - Use the installed product-retro skill after launch to capture reusable messaging lessons.
-7. **Remember** - Use the installed learn skill to search or save durable voice, proof, positioning, customer-language, and launch lessons.
+5. **Claim Check** - Use the installed claim-check skill before publication when claims, metrics, quotes, or launch assets need proof review.
+6. **Package** - Use the installed launch-pack skill when the story is approved and needs channel assets.
+7. **Learn** - Use the installed product-retro skill after launch to capture reusable messaging lessons.
+8. **Remember** - Use the installed learn skill to search or save durable voice, proof, positioning, customer-language, and launch lessons.
 
 Before drafting, check whether durable project learnings exist and whether the user already supplied enough source material. If context is thin, ask for the single missing input that would most improve the result instead of asking a long questionnaire.
 
@@ -28,6 +29,7 @@ Before drafting, check whether durable project learnings exist and whether the u
 - "What should the angle be?" -> `mstack-angle-review` by default, or `angle-review` if installed with `--no-prefix`
 - "Write the launch post/update/email" -> `mstack-write-product-update` by default, or `write-product-update` if installed with `--no-prefix`
 - "Review this draft" -> `mstack-critique-update` by default, or `critique-update` if installed with `--no-prefix`
+- "Check these claims before publishing" -> `mstack-claim-check` by default, or `claim-check` if installed with `--no-prefix`
 - "Turn this into launch assets" -> `mstack-launch-pack` by default, or `launch-pack` if installed with `--no-prefix`
 - "What did we learn from this launch?" -> `mstack-product-retro` by default, or `product-retro` if installed with `--no-prefix`
 - "Remember this for future launches" or "what have we learned?" -> `mstack-learn` by default, or `learn` if installed with `--no-prefix`

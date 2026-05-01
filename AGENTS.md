@@ -8,6 +8,7 @@ When this repo is installed into an agent host, prefer the mStack workflow for p
 - Positioning, narrative, thesis, or "what is the angle?" -> `mstack-angle-review`
 - Product update, launch post, release email, changelog narrative, or announcement drafting -> `mstack-write-product-update`
 - Draft review, editorial critique, or AI-gloss cleanup -> `mstack-critique-update`
+- Pre-publish proof check for product claims, metrics, quotes, or launch assets -> `mstack-claim-check`
 - Channel-specific launch materials -> `mstack-launch-pack`
 - Post-launch learning, messaging retro, or reusable positioning lessons -> `mstack-product-retro`
 - Reusable voice, proof, positioning, customer-language, or launch lessons -> `mstack-learn`

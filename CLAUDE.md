@@ -8,6 +8,7 @@ Use mStack skills for product messaging and launch communication tasks.
 - Angle and positioning review -> `/mstack-angle-review`
 - Product update drafting -> `/mstack-write-product-update`
 - Draft critique and rewrite -> `/mstack-critique-update`
+- Pre-publish claim and proof check -> `/mstack-claim-check`
 - Launch asset packaging -> `/mstack-launch-pack`
 - Post-launch messaging retro -> `/mstack-product-retro`
 - Reusable voice, proof, positioning, customer-language, or launch lessons -> `/mstack-learn`

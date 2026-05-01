@@ -40,7 +40,10 @@ Keep the same thesis across channels, but change density, proof, CTA, risk level
 5. Add review notes.
    Flag where legal, customer approval, screenshot, or metric validation is needed.
 
-6. Add execution details when useful.
+6. Run a proof guard when assets are publication-bound.
+   If source context and generated assets are available as files, run `mstack-claim-check` against the assets before final handoff. Otherwise, manually classify risky claims as confirmed, inferred, or missing.
+
+7. Add execution details when useful.
    Include subject lines, preview text, audience, CTA, owner, and timing only when they help the user publish.
 
 ## Output

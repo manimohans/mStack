@@ -1,0 +1,70 @@
+---
+name: claim-check
+description: >-
+  Use when a product update, launch asset, changelog, release email, social post, sales note,
+  or draft needs a pre-publish proof check for unsupported product claims, invented metrics,
+  invented quotes, overbroad language, or source mismatches.
+---
+
+# Claim Check
+
+## Standard
+
+Act as the proof guard before publishing. The job is not to improve the prose first. The job is to decide which material claims are source-backed, which are reasonable but inferred, and which should block publication until rewritten or verified.
+
+Do not approve claims because they sound plausible. Do not invent missing proof. Preserve strong copy when it is supported, and narrow or mark claims when support is thin.
+
+## Workflow
+
+1. Gather the draft and source context.
+   Use the user's draft plus any launch brief, source-intake output, PR, issue, changelog, support note, customer quote, analytics, screenshot, or approved positioning they provide. When the user mentions GitHub PRs, issues, changelogs, docs, specs, or local release files, run the installed source-intake helper first and use its output as source context.
+
+2. Run the claim-check helper when a draft or source file is available.
+   Resolve the helper with:
+
+   ```bash
+   helper="${CODEX_HOME:-$HOME/.codex}/skills/mstack/bin/mstack-claim-check"
+   [ -x "$helper" ] || helper="${CLAUDE_HOME:-$HOME/.claude}/skills/mstack/bin/mstack-claim-check"
+   [ -x "$helper" ] || helper="bin/mstack-claim-check"
+   "$helper" DRAFT.md SOURCE...
+   ```
+
+   If no files exist, perform the same review manually from the text in the conversation.
+
+3. Extract material claims.
+   Focus on shipped scope, user outcomes, comparisons, metrics, customer quotes, availability, performance, security, integrations, pricing, roadmap, and market claims. Ignore pure CTA, navigation, and obvious connective copy unless it implies a product promise.
+
+4. Map each claim to evidence.
+   Classify every material claim:
+   - Confirmed: directly supported by the supplied source.
+   - Inferred: likely true from the source, but not directly proven.
+   - Missing: not supported by the supplied source.
+
+5. Block risky publication.
+   Treat invented metrics, invented customer quotes, invented availability, absolute claims, and unsupported superiority claims as blockers unless the source explicitly backs them.
+
+6. Rewrite narrowly.
+   For each blocker, provide a concrete replacement that either removes the claim, narrows it to the sourced fact, or marks the missing proof as a bracketed placeholder.
+
+## Output
+
+```markdown
+## Publish Status
+{pass | needs review | blocked}
+
+## Claim Audit
+| Claim | Status | Evidence | Fix |
+|---|---|---|---|
+| {claim} | {confirmed/inferred/missing} | {source fact or missing proof} | {rewrite or verification needed} |
+
+## Blockers
+- {unsupported metric, quote, outcome, availability, comparison, or absolute claim}
+
+## Safe Rewrite
+{only rewrite the claims or sections that need narrowing}
+
+## Proof To Add
+- {specific screenshot, metric, quote, PR, issue, before/after, or approval needed}
+```
+
+If every material claim is confirmed, say so plainly and list any residual publication risk.
