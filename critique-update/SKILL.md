@@ -63,6 +63,7 @@ Do not average into a fake precise score unless useful. A short scorecard is eno
 - Proof: {score}/10 - {reason}
 - Credibility: {score}/10 - {reason}
 - Voice: {score}/10 - {reason}
+- Usefulness: {score}/10 - {reason}
 
 ## Recommended Rewrite Direction
 {one sentence}

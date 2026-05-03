@@ -24,7 +24,7 @@ Default to Selective Expansion unless the user gives a different posture.
 ## Workflow
 
 1. Identify candidate theses.
-   Generate 3-5 angles. Each should name the audience, the shift or pain, and a sentence a smart competitor might disagree with.
+   Generate 3-5 angles. Each should name the audience, the shift or pain, and a sentence a smart competitor might disagree with. If a `mstack-product-context` brief is available, use its User Pain, Why Now, Opinion, and Proof sections as source material. If no brief exists and source material is messy, run `mstack-product-context` first.
 
 2. Run the swap test.
    For each angle, ask: could a competitor publish this unchanged? If yes, mark it weak and sharpen or discard it.

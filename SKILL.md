@@ -25,14 +25,16 @@ Before drafting, check whether durable project learnings exist and whether the u
 
 ## Routing
 
-- Feature or release with rough notes -> `mstack-product-context` by default, or `product-context` if installed with `--no-prefix`
-- "What should the angle be?" -> `mstack-angle-review` by default, or `angle-review` if installed with `--no-prefix`
-- "Write the launch post/update/email" -> `mstack-write-product-update` by default, or `write-product-update` if installed with `--no-prefix`
-- "Review this draft" -> `mstack-critique-update` by default, or `critique-update` if installed with `--no-prefix`
-- "Check these claims before publishing" -> `mstack-claim-check` by default, or `claim-check` if installed with `--no-prefix`
-- "Turn this into launch assets" -> `mstack-launch-pack` by default, or `launch-pack` if installed with `--no-prefix`
-- "What did we learn from this launch?" -> `mstack-product-retro` by default, or `product-retro` if installed with `--no-prefix`
-- "Remember this for future launches" or "what have we learned?" -> `mstack-learn` by default, or `learn` if installed with `--no-prefix`
+Commands below use the `mstack-` prefix. If the project was installed with `--no-prefix`, drop it (`mstack-angle-review` -> `angle-review`).
+
+- Feature or release with rough notes -> `mstack-product-context`
+- "What should the angle be?" -> `mstack-angle-review`
+- "Write the launch post/update/email" -> `mstack-write-product-update`
+- "Review this draft" -> `mstack-critique-update`
+- "Check these claims before publishing" -> `mstack-claim-check`
+- "Turn this into launch assets" -> `mstack-launch-pack`
+- "What did we learn from this launch?" -> `mstack-product-retro`
+- "Remember this for future launches" or "what have we learned?" -> `mstack-learn`
 
 ## Standard
 
