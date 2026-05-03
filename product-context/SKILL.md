@@ -25,7 +25,16 @@ The brief should answer:
 ## Workflow
 
 1. Gather inputs.
-   Read the user's notes and, when relevant, inspect local docs, PRs, changelogs, tickets, transcripts, screenshots, specs, analytics, or support threads they mention. When the user mentions GitHub PRs, issues, changelogs, docs, specs, or local release files, run the installed source-intake helper with those refs first and use its output as source-grounded input. Resolve the helper with:
+   Read the user's notes and, when relevant, inspect local docs, PRs, changelogs, tickets, transcripts, screenshots, specs, analytics, or support threads they mention. When proof is scattered across PRs, issues, changelogs, metrics, screenshots, support notes, or customer quotes, run the installed evidence-pack helper first so the brief starts from typed evidence:
+
+   ```bash
+   helper="${CODEX_HOME:-$HOME/.codex}/skills/mstack/bin/mstack-evidence-pack"
+   [ -x "$helper" ] || helper="${CLAUDE_HOME:-$HOME/.claude}/skills/mstack/bin/mstack-evidence-pack"
+   [ -x "$helper" ] || helper="bin/mstack-evidence-pack"
+   "$helper" SOURCE...
+   ```
+
+   When the user only mentions GitHub PRs, issues, changelogs, docs, specs, or local release files and does not need a reusable evidence bundle, run the installed source-intake helper with those refs and use its output as source-grounded input. Resolve the helper with:
 
    ```bash
    helper="${CODEX_HOME:-$HOME/.codex}/skills/mstack/bin/mstack-source-intake"

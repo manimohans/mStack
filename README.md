@@ -2,11 +2,11 @@
 
 > Product messaging workflow for Codex, Claude Code, and compatible agent hosts.
 
-mStack turns a general coding agent into a product launch operator: someone who can collect messy release context, find the real angle, write the update, critique the draft, check claims against proof, package the launch, and learn from what happened.
+mStack turns a general coding agent into a product launch operator: someone who can collect launch evidence, organize messy release context, find the real angle, write the update, critique the draft, check claims against proof, package the launch, and learn from what happened.
 
 This is not a prompt dump. It is an ordered communication loop:
 
-**Context -> Angle -> Draft -> Critique -> Claim Check -> Package -> Retro -> Remember**
+**Evidence -> Context -> Angle -> Draft -> Critique -> Claim Check -> Package -> Retro -> Remember**
 
 ## Who This Is For
 
@@ -18,16 +18,17 @@ This is not a prompt dump. It is an ordered communication loop:
 ## Quick Start
 
 1. Install mStack.
-2. Run `/mstack-product-context` with release notes, PRs, customer pain, or rough launch ideas.
-3. Run `/mstack-angle-review` to choose the strongest defensible thesis.
-4. Run `/mstack-write-product-update` to draft the core update.
-5. Run `/mstack-critique-update` before publishing.
-6. Run `/mstack-claim-check` when claims, metrics, quotes, or launch assets need proof review.
-7. Run `/mstack-launch-pack` for channel-specific launch assets.
-8. After launch, run `/mstack-product-retro` to capture what worked.
-9. Run `/mstack-learn` when you want durable voice, proof, positioning, or customer-language lessons available for the next launch.
+2. Run `/mstack-evidence-pack` when proof is scattered across PRs, metrics, screenshots, support notes, or customer quotes.
+3. Run `/mstack-product-context` with release notes, PRs, customer pain, or rough launch ideas.
+4. Run `/mstack-angle-review` to choose the strongest defensible thesis.
+5. Run `/mstack-write-product-update` to draft the core update.
+6. Run `/mstack-critique-update` before publishing.
+7. Run `/mstack-claim-check` when claims, metrics, quotes, or launch assets need proof review.
+8. Run `/mstack-launch-pack` for channel-specific launch assets.
+9. After launch, run `/mstack-product-retro` to capture what worked.
+10. Run `/mstack-learn` when you want durable voice, proof, positioning, or customer-language lessons available for the next launch.
 
-Stop after step 4 if you only need the core update.
+Stop after step 5 if you only need the core update.
 
 ## Install
 
@@ -120,6 +121,13 @@ bin/mstack-source-intake --repo owner/project pr:123 CHANGELOG.md docs/release-n
 bin/mstack-source-intake --format json https://github.com/owner/project/issues/456
 ```
 
+Build a structured evidence pack from PRs, local docs, metrics, screenshots, and notes:
+
+```bash
+bin/mstack-evidence-pack --slug team-dashboards --repo owner/project pr:123 metrics.csv screenshots/dashboard.png
+bin/mstack-evidence-pack --format jsonl release-notes.md support-notes.md
+```
+
 Check a draft against source context before publishing:
 
 ```bash
@@ -156,6 +164,7 @@ The generated routing block looks like this:
 Use mStack for product communication work:
 
 - Product ideas, release notes, PR summaries, customer pain, or launch context -> `/mstack-product-context`
+- Launch proof scattered across PRs, issues, changelogs, metrics, screenshots, support notes, or customer quotes -> `/mstack-evidence-pack`
 - Positioning, narrative, thesis, or angle review -> `/mstack-angle-review`
 - Product update, launch post, release email, or announcement drafting -> `/mstack-write-product-update`
 - Draft review or AI-gloss cleanup -> `/mstack-critique-update`
@@ -173,6 +182,9 @@ If mStack was installed with `--no-prefix`, remove `mstack-` from the command na
 
 ```text
 You: We shipped team dashboards. Need a launch post.
+You: /mstack-evidence-pack
+Agent: [builds .mstack/evidence/team-dashboards.jsonl with facts, metrics, quotes, screenshots, allowed claims, and claims to avoid]
+
 You: /mstack-product-context
 Agent: What user pain caused this? What changed in the workflow? What did you refuse to build?
 
@@ -204,6 +216,7 @@ Each skill does one job and hands useful context to the next one.
 
 | Stage | Skill | Specialist | What it does |
 |---|---|---|---|
+| Evidence | `/mstack-evidence-pack` | Proof Collector | Turns PRs, issues, changelogs, metrics, screenshots, support notes, and quotes into a reusable evidence bundle. |
 | Context | `/mstack-product-context` | Product Reporter | Turns messy release notes, customer pain, PRs, support tickets, and founder notes into a launch brief. |
 | Angle | `/mstack-angle-review` | Positioning Editor | Finds the strongest defensible thesis and rejects generic feature-first framing. |
 | Draft | `/mstack-write-product-update` | Product Writer | Drafts the update around why now, opinion, tradeoffs, proof, and consequence. |
@@ -220,6 +233,7 @@ Because the hard part is not writing sentences. The hard part is deciding what i
 mStack adds gates before and after drafting:
 
 - Gather private context before writing.
+- Collect launch evidence before turning it into claims.
 - Choose one angle before generating copy.
 - Name tradeoffs so the update feels credible.
 - Review against proof and voice.
@@ -239,6 +253,7 @@ mStack/
 |   |-- mstack-check
 |   |-- mstack-claim-check
 |   |-- mstack-config
+|   |-- mstack-evidence-pack
 |   |-- mstack-source-intake
 |   |-- mstack-team-init
 |   |-- mstack-uninstall
@@ -255,12 +270,14 @@ mStack/
 |   `-- migrations/
 |-- scripts/
 |   |-- claim_check.py
+|   |-- evidence_pack.py
 |   |-- gen-skill-docs.py
 |   |-- host_config.py
 |   |-- messaging_eval.py
 |   |-- skill-check.py
 |   `-- source_intake.py
 |-- product-context/
+|-- evidence-pack/
 |-- angle-review/
 |-- write-product-update/
 |-- critique-update/
@@ -279,4 +296,4 @@ mStack/
 
 ## Status
 
-This is v0: a focused product messaging stack. The current useful layer is tool support for source intake and pre-publish proof checks; the next layer is richer connectors for Slack launch notes, analytics, screenshots, and customer evidence.
+This is v0: a focused product messaging stack. The current useful layer is tool support for source intake, evidence packaging, and pre-publish proof checks; the next layer is richer connectors for Slack launch notes, analytics, screenshots, and customer evidence.

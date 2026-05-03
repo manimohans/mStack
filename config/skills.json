@@ -1,6 +1,7 @@
 {
   "skills": [
     "product-context",
+    "evidence-pack",
     "angle-review",
     "write-product-update",
     "critique-update",
@@ -11,6 +12,7 @@
   ],
   "routing": {
     "product-context": "Product ideas, release notes, PR summaries, customer pain, or launch context",
+    "evidence-pack": "Launch proof scattered across PRs, issues, changelogs, metrics, screenshots, support notes, or customer quotes",
     "angle-review": "Positioning, narrative, thesis, or angle review",
     "write-product-update": "Product update, launch post, release email, or announcement drafting",
     "critique-update": "Draft review or AI-gloss cleanup",

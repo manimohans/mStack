@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evidence Pack"
+  short_description: "Build structured proof before drafting."
+  default_prompt: "Turn scattered PRs, metrics, screenshots, support notes, or quotes into a structured evidence pack with allowed claims and claims to avoid."

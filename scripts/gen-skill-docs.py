@@ -20,6 +20,10 @@ OPENAI_OVERRIDES = {
         "Organize messy launch inputs before drafting.",
         "Turn these product notes into a launch context brief. Separate confirmed facts, assumptions, missing proof, and claims to avoid.",
     ),
+    "evidence-pack": (
+        "Build structured proof before drafting.",
+        "Turn scattered PRs, metrics, screenshots, support notes, or quotes into a structured evidence pack with allowed claims and claims to avoid.",
+    ),
     "angle-review": (
         "Pressure-test and choose the strongest angle.",
         "Review the product context, generate competing angles, run the swap test, and recommend the strongest defensible thesis.",
