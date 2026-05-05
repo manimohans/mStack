@@ -2,7 +2,7 @@
 
 mStack is a messaging workflow, not a pile of prompts. Changes should preserve the loop:
 
-**Context -> Angle -> Draft -> Critique -> Claim Check -> Package -> Learn**
+**Evidence -> Context -> Angle -> Draft -> Critique -> Claim Check -> Package -> Publish Check -> Retro -> Remember**
 
 ## Local Checks
 
@@ -40,6 +40,7 @@ Default installs use the `mstack-` prefix:
 - `mstack-critique-update`
 - `mstack-claim-check`
 - `mstack-launch-pack`
+- `mstack-publish-check`
 - `mstack-product-retro`
 - `mstack-learn`
 

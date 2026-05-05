@@ -2,11 +2,11 @@
 
 > Product messaging workflow for Codex, Claude Code, and compatible agent hosts.
 
-mStack turns a general coding agent into a product launch operator: someone who can collect launch evidence, organize messy release context, find the real angle, write the update, critique the draft, check claims against proof, package the launch, and learn from what happened.
+mStack turns a general coding agent into a product launch operator: someone who can collect launch evidence, organize messy release context, find the real angle, write the update, critique the draft, check claims against proof, package the launch, run a final publish-readiness check, and learn from what happened.
 
 This is not a prompt dump. It is an ordered communication loop:
 
-**Evidence -> Context -> Angle -> Draft -> Critique -> Claim Check -> Package -> Retro -> Remember**
+**Evidence -> Context -> Angle -> Draft -> Critique -> Claim Check -> Package -> Publish Check -> Retro -> Remember**
 
 ## Who This Is For
 
@@ -25,8 +25,9 @@ This is not a prompt dump. It is an ordered communication loop:
 6. Run `/mstack-critique-update` before publishing.
 7. Run `/mstack-claim-check` when claims, metrics, quotes, or launch assets need proof review.
 8. Run `/mstack-launch-pack` for channel-specific launch assets.
-9. After launch, run `/mstack-product-retro` to capture what worked.
-10. Run `/mstack-learn` when you want durable voice, proof, positioning, or customer-language lessons available for the next launch.
+9. Run `/mstack-publish-check` when launch assets need one readiness verdict before handoff.
+10. After launch, run `/mstack-product-retro` to capture what worked.
+11. Run `/mstack-learn` when you want durable voice, proof, positioning, or customer-language lessons available for the next launch.
 
 Stop after step 5 if you only need the core update.
 
@@ -135,6 +136,13 @@ bin/mstack-claim-check draft.md source-intake.md launch-brief.md
 bin/mstack-claim-check --format json draft.md source-intake.md
 ```
 
+Check a full launch package before final handoff:
+
+```bash
+bin/mstack-publish-check launch-assets.md evidence-pack.md source-intake.md
+bin/mstack-publish-check --format json launch-assets.md evidence-pack.md
+```
+
 ## Codex Plugin
 
 mStack includes a Codex plugin manifest at `.codex-plugin/plugin.json`. The repository root is the plugin root, and the manifest exposes the existing `SKILL.md` files through:
@@ -170,6 +178,7 @@ Use mStack for product communication work:
 - Draft review or AI-gloss cleanup -> `/mstack-critique-update`
 - Pre-publish proof check for product claims, metrics, quotes, or launch assets -> `/mstack-claim-check`
 - Channel-specific launch materials -> `/mstack-launch-pack`
+- Publication-readiness check across proof, claims, channels, placeholders, and copy hygiene -> `/mstack-publish-check`
 - Post-launch learning or messaging retro -> `/mstack-product-retro`
 - Reusable voice, proof, positioning, customer-language, or launch lessons -> `/mstack-learn`
 ```
@@ -206,6 +215,9 @@ Agent: [classifies material claims as confirmed, inferred, or missing before pub
 You: /mstack-launch-pack
 Agent: [creates changelog, launch email, social post, internal Slack, sales note]
 
+You: /mstack-publish-check
+Agent: [returns pass, needs review, or blocked with the exact fix before handoff]
+
 You: /mstack-learn
 Agent: [saves the reusable positioning and voice lessons for future launches]
 ```
@@ -223,6 +235,7 @@ Each skill does one job and hands useful context to the next one.
 | Critique | `/mstack-critique-update` | Editorial Reviewer | Scores and rewrites drafts for specificity, credibility, proof, voice, and AI gloss. |
 | Claim Check | `/mstack-claim-check` | Proof Guard | Audits product claims, metrics, quotes, and launch assets against source context before publication. |
 | Package | `/mstack-launch-pack` | Launch Operator | Converts the approved story into channel-specific launch assets. |
+| Publish Check | `/mstack-publish-check` | Readiness Gate | Combines proof coverage, claim-check status, channel completeness, placeholders, and copy hygiene into one publish verdict. |
 | Retro | `/mstack-product-retro` | Messaging Analyst | Captures what worked, what confused users, and what to remember next time. |
 | Remember | `/mstack-learn` | Messaging Memory | Searches and saves durable voice, proof, positioning, customer-language, and channel lessons. |
 
@@ -239,6 +252,7 @@ mStack adds gates before and after drafting:
 - Review against proof and voice.
 - Check material claims against source context before publishing.
 - Adapt by channel instead of duplicating the same copy.
+- Run a final publish check so unresolved proof, placeholders, or channel gaps are visible before handoff.
 - Learn from the launch so the next one improves.
 
 ## Project Layout
@@ -254,6 +268,7 @@ mStack/
 |   |-- mstack-claim-check
 |   |-- mstack-config
 |   |-- mstack-evidence-pack
+|   |-- mstack-publish-check
 |   |-- mstack-source-intake
 |   |-- mstack-team-init
 |   |-- mstack-uninstall
@@ -274,6 +289,7 @@ mStack/
 |   |-- gen-skill-docs.py
 |   |-- host_config.py
 |   |-- messaging_eval.py
+|   |-- publish_check.py
 |   |-- skill-check.py
 |   `-- source_intake.py
 |-- product-context/
@@ -283,6 +299,7 @@ mStack/
 |-- critique-update/
 |-- claim-check/
 |-- launch-pack/
+|-- publish-check/
 |-- product-retro/
 |-- learn/
 |-- setup
@@ -296,4 +313,4 @@ mStack/
 
 ## Status
 
-This is v0: a focused product messaging stack. The current useful layer is tool support for source intake, evidence packaging, and pre-publish proof checks; the next layer is richer connectors for Slack launch notes, analytics, screenshots, and customer evidence.
+This is v0: a focused product messaging stack. The current useful layer is tool support for source intake, evidence packaging, pre-publish proof checks, and launch package readiness checks; the next layer is richer connectors for Slack launch notes, analytics, screenshots, and customer evidence.

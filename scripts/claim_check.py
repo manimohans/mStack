@@ -178,7 +178,9 @@ def source_sections(text: str) -> dict[str, str]:
         line = raw.rstrip()
         heading = line.strip().lower()
         if heading.startswith("## "):
-            if any(term in heading for term in ["unknown", "claim", "avoid", "missing"]):
+            if any(term in heading for term in ["allowed claim", "safe claim", "approved claim"]):
+                current = "evidence"
+            elif any(term in heading for term in ["unknown", "claim to avoid", "claims to avoid", "avoid", "missing", "blocker"]):
                 current = "risk"
             else:
                 current = "evidence"
@@ -191,7 +193,7 @@ def material_claims(draft: str) -> list[str]:
     claims: list[str] = []
     for candidate in sentence_candidates(draft):
         lower = candidate.lower()
-        if lower.startswith(("subject:", "preview:", "cta:", "button:", "link:")):
+        if lower.startswith(("subject:", "preview:", "cta:", "button:", "link:", "claims to avoid:", "claim to avoid:", "do not claim:", "don't claim:")):
             continue
         if len(words(candidate)) < 3:
             continue

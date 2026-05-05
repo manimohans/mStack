@@ -1,0 +1,4 @@
+interface:
+  display_name: "Publish Check"
+  short_description: "Decide whether launch assets are ready to publish."
+  default_prompt: "Check this launch package for publication readiness across proof coverage, claim-check results, channel completeness, placeholders, and copy hygiene."

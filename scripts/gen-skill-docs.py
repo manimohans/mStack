@@ -44,6 +44,10 @@ OPENAI_OVERRIDES = {
         "Adapt an approved story into launch assets.",
         "Create channel-specific launch assets from the approved thesis. Keep the claim consistent while adapting proof, CTA, and tone.",
     ),
+    "publish-check": (
+        "Decide whether launch assets are ready to publish.",
+        "Check this launch package for publication readiness across proof coverage, claim-check results, channel completeness, placeholders, and copy hygiene.",
+    ),
     "product-retro": (
         "Capture useful post-launch messaging lessons.",
         "Run a post-launch messaging retro. Separate measured evidence, qualitative signals, product learning, and reusable messaging lessons.",

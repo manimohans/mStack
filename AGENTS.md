@@ -11,6 +11,7 @@ When this repo is installed into an agent host, prefer the mStack workflow for p
 - Draft review, editorial critique, or AI-gloss cleanup -> `mstack-critique-update`
 - Pre-publish proof check for product claims, metrics, quotes, or launch assets -> `mstack-claim-check`
 - Channel-specific launch materials -> `mstack-launch-pack`
+- Publication-readiness check across proof, claims, channels, placeholders, and copy hygiene -> `mstack-publish-check`
 - Post-launch learning, messaging retro, or reusable positioning lessons -> `mstack-product-retro`
 - Reusable voice, proof, positioning, customer-language, or launch lessons -> `mstack-learn`
 

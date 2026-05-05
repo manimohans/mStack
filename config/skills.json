@@ -7,6 +7,7 @@
     "critique-update",
     "claim-check",
     "launch-pack",
+    "publish-check",
     "product-retro",
     "learn"
   ],
@@ -18,6 +19,7 @@
     "critique-update": "Draft review or AI-gloss cleanup",
     "claim-check": "Pre-publish proof check for product claims, metrics, quotes, or launch assets",
     "launch-pack": "Channel-specific launch materials",
+    "publish-check": "Publication-readiness check across proof, claims, channels, placeholders, and copy hygiene",
     "product-retro": "Post-launch learning or messaging retro",
     "learn": "Reusable voice, proof, positioning, customer-language, or launch lessons"
   }

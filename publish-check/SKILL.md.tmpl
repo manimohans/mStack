@@ -1,0 +1,78 @@
+---
+name: publish-check
+description: >-
+  Use when launch assets are publication-bound and need one readiness verdict across proof coverage, claim-check results, channel completeness, placeholders, and generic launch language before final handoff.
+---
+
+# Publish Check
+
+## Standard
+
+Act as the final launch-readiness gate. The job is not to rewrite the launch package. The job is to decide whether the package is ready to publish, needs a human review, or must be blocked until proof or copy issues are fixed.
+
+Use concrete evidence. Do not pass assets with unsupported metrics, invented quotes, unresolved placeholders, missing source context, or channel assets that drift from the approved thesis.
+
+## Workflow
+
+1. Gather the publish-bound package.
+   Use the launch pack, product update, changelog, email, social post, internal note, sales note, support note, founder talking points, or any combined assets file that will be sent to an audience.
+
+2. Gather source context.
+   Use the evidence pack, source-intake output, launch brief, claim-check context, approved positioning, metrics, support notes, screenshots, and customer quotes. If files are available, run the installed publish-check helper.
+
+   ```bash
+   helper="${CODEX_HOME:-$HOME/.codex}/skills/mstack/bin/mstack-publish-check"
+   [ -x "$helper" ] || helper="${CLAUDE_HOME:-$HOME/.claude}/skills/mstack/bin/mstack-publish-check"
+   [ -x "$helper" ] || helper="bin/mstack-publish-check"
+   "$helper" launch-assets.md evidence-pack.md source-intake.md
+   ```
+
+3. Check the package as a whole.
+   Validate:
+   - Claim status: unsupported metrics, quotes, absolutes, or broad claims are not publishable.
+   - Evidence coverage: source context includes proof, customer pain, and claims-to-avoid.
+   - Channel completeness: requested launch assets are present and have the same thesis, proof, CTA, and product boundary.
+   - Copy hygiene: placeholders, launch-template language, AI-gloss, and vague intensity are removed.
+   - Review notes: legal approval, customer quote approval, screenshot approval, and metric validation are explicit when needed.
+
+4. Return one verdict.
+   Use:
+   - `pass` when the package is source-backed, complete, and free of unresolved publish risks.
+   - `needs review` when the package is close but has inferred claims, weak evidence coverage, missing channel fields, or non-blocking copy issues.
+   - `blocked` when unsupported metrics, quotes, absolute claims, missing source context, or unresolved placeholders remain.
+
+5. Keep fixes specific.
+   Name the exact channel, sentence, claim, source, or missing proof to fix. Do not give broad advice such as "make it stronger."
+
+## Output
+
+```markdown
+## Publish Readiness
+{pass | needs review | blocked}
+
+## Blocking Issues
+- {specific blocker or "None."}
+
+## Review Items
+- {specific review item or "None."}
+
+## Evidence Coverage
+- fact: {count}
+- metric: {count}
+- quote: {count}
+- screenshot: {count}
+- customer_pain: {count}
+- allowed_claim: {count}
+- claim_to_avoid: {count}
+
+## Channel Check
+- {channel}: {present | missing | not requested}
+
+## Claim Check Summary
+- confirmed: {count}
+- inferred: {count}
+- missing: {count}
+
+## Next Fix
+{single highest-priority action}
+```
