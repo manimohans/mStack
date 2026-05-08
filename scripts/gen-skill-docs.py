@@ -16,6 +16,10 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILLS_FILE = ROOT / "config" / "skills.json"
 
 OPENAI_OVERRIDES = {
+    "source-intake": (
+        "Resolve launch sources before downstream messaging.",
+        "Resolve these PRs, issues, changelogs, docs, specs, or files into source context. Start with the Source Health Report and block on unavailable sources.",
+    ),
     "product-context": (
         "Organize messy launch inputs before drafting.",
         "Turn these product notes into a launch context brief. Separate confirmed facts, assumptions, missing proof, and claims to avoid.",

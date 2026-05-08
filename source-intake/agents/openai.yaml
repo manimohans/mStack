@@ -1,0 +1,4 @@
+interface:
+  display_name: "Source Intake"
+  short_description: "Resolve launch sources before downstream messaging."
+  default_prompt: "Resolve these PRs, issues, changelogs, docs, specs, or files into source context. Start with the Source Health Report and block on unavailable sources."

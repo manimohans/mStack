@@ -317,6 +317,47 @@ def merge_result(into: dict[str, Any], item: dict[str, Any]) -> None:
             append_unique(into[key], value)
 
 
+def source_health(result: dict[str, Any]) -> dict[str, Any]:
+    sources = result.get("sources", [])
+    ok_count = sum(1 for source in sources if source.get("status", "ok") == "ok")
+    unavailable = [source for source in sources if source.get("status", "ok") != "ok"]
+    fact_count = sum(len(result.get(key, [])) for key in ["shipped_scope", "user_pain", "proof", "tradeoffs"])
+    reasons: list[str] = []
+
+    if not sources:
+        verdict = "blocked"
+        reasons.append("No sources were provided.")
+    elif unavailable:
+        verdict = "blocked"
+        reasons.append(f"{len(unavailable)} source(s) could not be resolved.")
+    elif fact_count == 0:
+        verdict = "needs_review"
+        reasons.append("Sources resolved, but no clear launch facts were detected.")
+    elif not result.get("proof"):
+        verdict = "needs_review"
+        reasons.append("Sources resolved, but proof cues are thin or missing.")
+    else:
+        verdict = "safe_to_use"
+        reasons.append("Sources resolved with usable launch facts and proof cues.")
+
+    if verdict == "blocked":
+        next_step = "Fix source refs, authentication, network access, or file paths before downstream mStack work."
+    elif verdict == "needs_review":
+        next_step = "Review the sources manually or add stronger proof before turning this into claims."
+    else:
+        next_step = "Use this intake as source context for evidence-pack, product-context, claim-check, or publish-check."
+
+    return {
+        "verdict": verdict,
+        "total_sources": len(sources),
+        "ok_sources": ok_count,
+        "unavailable_sources": len(unavailable),
+        "source_backed_fact_count": fact_count,
+        "reasons": reasons,
+        "next_step": next_step,
+    }
+
+
 def collect_sources(raw_sources: list[str], repo: str | None) -> dict[str, Any]:
     result = empty_result()
     for raw in raw_sources:
@@ -325,6 +366,7 @@ def collect_sources(raw_sources: list[str], repo: str | None) -> dict[str, Any]:
             merge_result(result, collect_github(ref))
         else:
             merge_result(result, collect_file(ref.value))
+    result["source_health"] = source_health(result)
     return result
 
 
@@ -335,7 +377,20 @@ def markdown_list(items: list[str]) -> str:
 
 
 def render_markdown(result: dict[str, Any]) -> str:
-    lines = ["# Source Intake", "", "## Sources"]
+    health = result.get("source_health") or source_health(result)
+    lines = [
+        "# Source Intake",
+        "",
+        "## Source Health Report",
+        f"- Verdict: {health['verdict']}",
+        f"- Sources resolved: {health['ok_sources']}/{health['total_sources']}",
+        f"- Unavailable sources: {health['unavailable_sources']}",
+        f"- Source-backed facts: {health['source_backed_fact_count']}",
+        f"- Reason: {' '.join(health['reasons'])}",
+        f"- Next step: {health['next_step']}",
+        "",
+        "## Sources",
+    ]
     if result["sources"]:
         for source in result["sources"]:
             status = source.get("status", "ok")
@@ -388,7 +443,10 @@ def run_self_test() -> int:
     assert any("slack" in item.lower() for item in result["tradeoffs"])
     assert any("customer quote" in item.lower() for item in result["unknowns"])
     assert any("every source" in item.lower() for item in result["claims_to_avoid"])
+    assert result["source_health"]["verdict"] == "safe_to_use"
+    assert result["source_health"]["ok_sources"] == 1
     assert "# Source Intake" in render_markdown(result)
+    assert "## Source Health Report" in render_markdown(result)
     print("OK source intake self-test")
     return 0
 
@@ -398,6 +456,7 @@ def main() -> int:
     parser.add_argument("sources", nargs="*", metavar="SOURCE", help="GitHub PR/issue ref or local file path")
     parser.add_argument("--repo", help="GitHub repository in owner/name form for pr:N or issue:N refs")
     parser.add_argument("--format", choices=["markdown", "json"], default="markdown")
+    parser.add_argument("--strict", action="store_true", help="exit non-zero when required source context is blocked")
     parser.add_argument("--self-test", action="store_true", help="run offline parser and renderer checks")
     args = parser.parse_args()
 
@@ -412,6 +471,9 @@ def main() -> int:
         print(json.dumps(result, indent=2))
     else:
         print(render_markdown(result), end="")
+    if args.strict and result["source_health"]["verdict"] == "blocked":
+        print("mstack-source-intake: blocked source context in strict mode", file=sys.stderr)
+        return 2
     return 0
 
 

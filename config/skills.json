@@ -1,5 +1,6 @@
 {
   "skills": [
+    "source-intake",
     "product-context",
     "evidence-pack",
     "angle-review",
@@ -12,6 +13,7 @@
     "learn"
   ],
   "routing": {
+    "source-intake": "GitHub PRs, issues, changelogs, docs, specs, or local release files that need source context and a health report",
     "product-context": "Product ideas, release notes, PR summaries, customer pain, or launch context",
     "evidence-pack": "Launch proof scattered across PRs, issues, changelogs, metrics, screenshots, support notes, or customer quotes",
     "angle-review": "Positioning, narrative, thesis, or angle review",

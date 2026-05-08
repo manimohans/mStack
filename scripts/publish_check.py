@@ -57,6 +57,7 @@ PAIN_RE = re.compile(r"\b(blocked|confusing|customer|customers|friction|manual|m
 FACT_RE = re.compile(r"\b(add|added|built|changed|feature|fix|fixed|implemented|release|ship|shipped|support|update)\b", re.I)
 AVOID_RE = re.compile(r"\b(avoid|do not claim|don't claim|claim to avoid|unsupported|overbroad)\b", re.I)
 ALLOWED_RE = re.compile(r"\b(allowed claim|safe claim|safe to claim|approved claim)\b", re.I)
+BLOCKED_SOURCE_RE = re.compile(r"^\s*[-*]?\s*Verdict\s*:\s*blocked\s*$", re.I | re.M)
 
 
 @dataclass(frozen=True)
@@ -213,6 +214,8 @@ def build_report(asset_text: str, source_text: str) -> PublishReport:
 
     if not source_text.strip():
         blockers.append(Issue("blocked", "source context", "No source context was supplied.", "Add an evidence pack, source-intake output, launch brief, or approved proof file."))
+    elif BLOCKED_SOURCE_RE.search(source_text):
+        blockers.append(Issue("blocked", "source context", "Source-intake reported blocked source context.", "Fix unavailable PRs, issues, docs, files, authentication, or network access before publishing."))
 
     claim_status = publish_status(audits)
     if claim_status == "blocked":
@@ -378,6 +381,8 @@ Managers replace Friday CSV exports with team dashboards.
     assert "99%" in render_markdown(blocked)
     placeholder = build_report(package + "\nCTA: [link]\n", source)
     assert placeholder.status == "blocked"
+    blocked_source = build_report(package, "# Source Intake\n\n## Source Health Report\n- Verdict: blocked\n")
+    assert blocked_source.status == "blocked"
 
     jsonl = "\n".join(
         [

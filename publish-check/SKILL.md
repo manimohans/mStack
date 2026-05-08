@@ -20,7 +20,7 @@ Use concrete evidence. Do not pass assets with unsupported metrics, invented quo
    Use the launch pack, product update, changelog, email, social post, internal note, sales note, support note, founder talking points, or any combined assets file that will be sent to an audience.
 
 2. Gather source context.
-   Use the evidence pack, source-intake output, launch brief, claim-check context, approved positioning, metrics, support notes, screenshots, and customer quotes. If files are available, run the installed publish-check helper.
+   Use the evidence pack, source-intake output, launch brief, claim-check context, approved positioning, metrics, support notes, screenshots, and customer quotes. If source-intake output is `blocked`, treat the package as blocked until the missing source context is fixed. If files are available, run the installed publish-check helper.
 
    ```bash
    helper="${CODEX_HOME:-$HOME/.codex}/skills/mstack/bin/mstack-publish-check"

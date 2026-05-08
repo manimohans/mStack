@@ -5,6 +5,7 @@ Use mStack skills for product messaging and launch communication tasks.
 ## Skill Routing
 
 - Product context gathering -> `/mstack-product-context`
+- Source context and source health checks -> `/mstack-source-intake`
 - Launch proof and evidence packaging -> `/mstack-evidence-pack`
 - Angle and positioning review -> `/mstack-angle-review`
 - Product update drafting -> `/mstack-write-product-update`

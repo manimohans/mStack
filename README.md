@@ -2,11 +2,11 @@
 
 > Product messaging workflow for Codex, Claude Code, and compatible agent hosts.
 
-mStack turns a general coding agent into a product launch operator: someone who can collect launch evidence, organize messy release context, find the real angle, write the update, critique the draft, check claims against proof, package the launch, run a final publish-readiness check, and learn from what happened.
+mStack turns a general coding agent into a product launch operator: someone who can resolve launch sources, collect launch evidence, organize messy release context, find the real angle, write the update, critique the draft, check claims against proof, package the launch, run a final publish-readiness check, and learn from what happened.
 
 This is not a prompt dump. It is an ordered communication loop:
 
-**Evidence -> Context -> Angle -> Draft -> Critique -> Claim Check -> Package -> Publish Check -> Retro -> Remember**
+**Source Intake -> Evidence -> Context -> Angle -> Draft -> Critique -> Claim Check -> Package -> Publish Check -> Retro -> Remember**
 
 ## Who This Is For
 
@@ -18,18 +18,19 @@ This is not a prompt dump. It is an ordered communication loop:
 ## Quick Start
 
 1. Install mStack.
-2. Run `/mstack-evidence-pack` when proof is scattered across PRs, metrics, screenshots, support notes, or customer quotes.
-3. Run `/mstack-product-context` with release notes, PRs, customer pain, or rough launch ideas.
-4. Run `/mstack-angle-review` to choose the strongest defensible thesis.
-5. Run `/mstack-write-product-update` to draft the core update.
-6. Run `/mstack-critique-update` before publishing.
-7. Run `/mstack-claim-check` when claims, metrics, quotes, or launch assets need proof review.
-8. Run `/mstack-launch-pack` for channel-specific launch assets.
-9. Run `/mstack-publish-check` when launch assets need one readiness verdict before handoff.
-10. After launch, run `/mstack-product-retro` to capture what worked.
-11. Run `/mstack-learn` when you want durable voice, proof, positioning, or customer-language lessons available for the next launch.
+2. Run `/mstack-source-intake` when PRs, issues, changelogs, docs, specs, or files need a source health report.
+3. Run `/mstack-evidence-pack` when proof is scattered across PRs, metrics, screenshots, support notes, or customer quotes.
+4. Run `/mstack-product-context` with release notes, PRs, customer pain, or rough launch ideas.
+5. Run `/mstack-angle-review` to choose the strongest defensible thesis.
+6. Run `/mstack-write-product-update` to draft the core update.
+7. Run `/mstack-critique-update` before publishing.
+8. Run `/mstack-claim-check` when claims, metrics, quotes, or launch assets need proof review.
+9. Run `/mstack-launch-pack` for channel-specific launch assets.
+10. Run `/mstack-publish-check` when launch assets need one readiness verdict before handoff.
+11. After launch, run `/mstack-product-retro` to capture what worked.
+12. Run `/mstack-learn` when you want durable voice, proof, positioning, or customer-language lessons available for the next launch.
 
-Stop after step 5 if you only need the core update.
+Stop after step 6 if you only need the core update.
 
 ## Install
 
@@ -120,6 +121,7 @@ Collect source context from GitHub refs and local files before writing a launch 
 ```bash
 bin/mstack-source-intake --repo owner/project pr:123 CHANGELOG.md docs/release-notes.md
 bin/mstack-source-intake --format json https://github.com/owner/project/issues/456
+bin/mstack-source-intake --strict --repo owner/project pr:123 issue:456
 ```
 
 Build a structured evidence pack from PRs, local docs, metrics, screenshots, and notes:
@@ -172,6 +174,7 @@ The generated routing block looks like this:
 Use mStack for product communication work:
 
 - Product ideas, release notes, PR summaries, customer pain, or launch context -> `/mstack-product-context`
+- GitHub PRs, issues, changelogs, docs, specs, or local release files that need source context and a health report -> `/mstack-source-intake`
 - Launch proof scattered across PRs, issues, changelogs, metrics, screenshots, support notes, or customer quotes -> `/mstack-evidence-pack`
 - Positioning, narrative, thesis, or angle review -> `/mstack-angle-review`
 - Product update, launch post, release email, or announcement drafting -> `/mstack-write-product-update`
@@ -191,6 +194,9 @@ If mStack was installed with `--no-prefix`, remove `mstack-` from the command na
 
 ```text
 You: We shipped team dashboards. Need a launch post.
+You: /mstack-source-intake
+Agent: [checks source availability, lists resolved PRs/docs, and returns a source health verdict]
+
 You: /mstack-evidence-pack
 Agent: [builds .mstack/evidence/team-dashboards.jsonl with facts, metrics, quotes, screenshots, allowed claims, and claims to avoid]
 
@@ -228,6 +234,7 @@ Each skill does one job and hands useful context to the next one.
 
 | Stage | Skill | Specialist | What it does |
 |---|---|---|---|
+| Source Intake | `/mstack-source-intake` | Source Reporter | Resolves PRs, issues, changelogs, docs, specs, and files into source context with a health verdict. |
 | Evidence | `/mstack-evidence-pack` | Proof Collector | Turns PRs, issues, changelogs, metrics, screenshots, support notes, and quotes into a reusable evidence bundle. |
 | Context | `/mstack-product-context` | Product Reporter | Turns messy release notes, customer pain, PRs, support tickets, and founder notes into a launch brief. |
 | Angle | `/mstack-angle-review` | Positioning Editor | Finds the strongest defensible thesis and rejects generic feature-first framing. |
@@ -246,6 +253,7 @@ Because the hard part is not writing sentences. The hard part is deciding what i
 mStack adds gates before and after drafting:
 
 - Gather private context before writing.
+- Check whether source refs actually resolve before downstream work.
 - Collect launch evidence before turning it into claims.
 - Choose one angle before generating copy.
 - Name tradeoffs so the update feels credible.
@@ -292,6 +300,7 @@ mStack/
 |   |-- publish_check.py
 |   |-- skill-check.py
 |   `-- source_intake.py
+|-- source-intake/
 |-- product-context/
 |-- evidence-pack/
 |-- angle-review/

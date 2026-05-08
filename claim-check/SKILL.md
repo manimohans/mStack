@@ -17,7 +17,9 @@ Do not approve claims because they sound plausible. Do not invent missing proof.
 ## Workflow
 
 1. Gather the draft and source context.
-   Use the user's draft plus any launch brief, evidence pack, source-intake output, PR, issue, changelog, support note, customer quote, analytics, screenshot, or approved positioning they provide. When the user mentions scattered proof sources, run `mstack-evidence-pack` first and use the resulting JSONL or Markdown as source context. When the user only mentions GitHub PRs, issues, changelogs, docs, specs, or local release files, run the installed source-intake helper first and use its output as source context.
+   Use the user's draft plus any launch brief, evidence pack, source-intake output, PR, issue, changelog, support note, customer quote, analytics, screenshot, or approved positioning they provide. When the user mentions scattered proof sources, run `mstack-evidence-pack` first and use the resulting JSONL or Markdown as source context. When the user only mentions GitHub PRs, issues, changelogs, docs, specs, or local release files, run the installed source-intake helper with `--strict` first and use its output as source context.
+
+   If the source-intake report is `blocked`, do not approve publication-bound claims that depend on the missing source.
 
 2. Run the claim-check helper when a draft or source file is available.
    Resolve the helper with:

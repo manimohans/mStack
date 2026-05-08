@@ -5,6 +5,7 @@
 When this repo is installed into an agent host, prefer the mStack workflow for product communication work:
 
 - Product ideas, release notes, PR summaries, customer pain, or launch context -> `mstack-product-context`
+- GitHub PRs, issues, changelogs, docs, specs, or local release files that need source context and a health report -> `mstack-source-intake`
 - Launch proof scattered across PRs, issues, changelogs, metrics, screenshots, support notes, or customer quotes -> `mstack-evidence-pack`
 - Positioning, narrative, thesis, or "what is the angle?" -> `mstack-angle-review`
 - Product update, launch post, release email, changelog narrative, or announcement drafting -> `mstack-write-product-update`

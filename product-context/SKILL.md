@@ -40,7 +40,7 @@ The brief should answer:
    helper="${CODEX_HOME:-$HOME/.codex}/skills/mstack/bin/mstack-source-intake"
    [ -x "$helper" ] || helper="${CLAUDE_HOME:-$HOME/.claude}/skills/mstack/bin/mstack-source-intake"
    [ -x "$helper" ] || helper="bin/mstack-source-intake"
-   "$helper" SOURCE...
+   "$helper" --strict SOURCE...
    ```
 
    If source context is thin, ask for the single highest-value missing input and keep going with labeled assumptions.

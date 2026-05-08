@@ -67,6 +67,10 @@ grep -q '^name: product-context$' "$tmp_root/codex-noprefix/skills/product-conte
   || fail "unprefixed install wrote wrong skill name"
 test -f "$tmp_root/codex-copy/skills/mstack-product-context/agents/openai.yaml" \
   || fail "copy install did not include agent metadata"
+test -f "$tmp_root/codex/skills/mstack-source-intake/agents/openai.yaml" \
+  || fail "source-intake skill was not installed with metadata"
+grep -q '^name: mstack-source-intake$' "$tmp_root/codex/skills/mstack-source-intake/SKILL.md" \
+  || fail "prefixed Codex install did not write source-intake skill"
 test -f "$tmp_root/codex/skills/mstack-learn/agents/openai.yaml" \
   || fail "learn skill was not installed with metadata"
 test -f "$tmp_root/state/.last-setup-version" \
