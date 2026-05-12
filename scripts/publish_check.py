@@ -204,6 +204,80 @@ def first_match(pattern: re.Pattern[str], text: str) -> str | None:
     return clean_line(text[line_start:line_end])
 
 
+def source_label(source: dict[str, Any]) -> str:
+    label = source.get("url") or source.get("ref") or source.get("path") or "unknown source"
+    status = source.get("status") or "unknown"
+    message = source.get("message")
+    if message:
+        return f"{label} ({status}: {message})"
+    return f"{label} ({status})"
+
+
+def json_values(text: str) -> list[Any]:
+    try:
+        return [json.loads(text)]
+    except json.JSONDecodeError:
+        pass
+
+    values: list[Any] = []
+    decoder = json.JSONDecoder()
+    index = 0
+    while index < len(text):
+        match = re.search(r"[\{\[]", text[index:])
+        if not match:
+            break
+        start = index + match.start()
+        try:
+            value, end = decoder.raw_decode(text[start:])
+        except json.JSONDecodeError:
+            index = start + 1
+            continue
+        values.append(value)
+        index = start + end
+    return values
+
+
+def source_health_issue(source_text: str) -> Issue | None:
+    payload = next(
+        (
+            value
+            for value in json_values(source_text)
+            if isinstance(value, dict) and isinstance(value.get("source_health"), dict)
+        ),
+        None,
+    )
+    if not isinstance(payload, dict):
+        return None
+
+    health = payload.get("source_health")
+    if not isinstance(health, dict) or health.get("verdict") != "blocked":
+        return None
+
+    sources = payload.get("sources") if isinstance(payload.get("sources"), list) else []
+    unavailable = [source for source in sources if isinstance(source, dict) and source.get("status", "ok") != "ok"]
+    if unavailable:
+        shown = ", ".join(source_label(source) for source in unavailable[:3])
+        extra = "" if len(unavailable) <= 3 else f", plus {len(unavailable) - 3} more"
+        detail = f"Source-intake JSON reported blocked source context: {shown}{extra}."
+    else:
+        reasons = health.get("reasons")
+        reason_text = (
+            " ".join(str(reason) for reason in reasons)
+            if isinstance(reasons, list)
+            else str(reasons or "").strip()
+        )
+        detail = "Source-intake JSON reported blocked source context."
+        if reason_text:
+            detail += f" Reason: {reason_text}"
+
+    return Issue(
+        "blocked",
+        "source context",
+        detail,
+        "Fix unavailable PRs, issues, docs, files, authentication, or network access before publishing.",
+    )
+
+
 def build_report(asset_text: str, source_text: str) -> PublishReport:
     counts = evidence_counts(source_text)
     channels = channel_presence(asset_text)
@@ -214,6 +288,8 @@ def build_report(asset_text: str, source_text: str) -> PublishReport:
 
     if not source_text.strip():
         blockers.append(Issue("blocked", "source context", "No source context was supplied.", "Add an evidence pack, source-intake output, launch brief, or approved proof file."))
+    elif issue := source_health_issue(source_text):
+        blockers.append(issue)
     elif BLOCKED_SOURCE_RE.search(source_text):
         blockers.append(Issue("blocked", "source context", "Source-intake reported blocked source context.", "Fix unavailable PRs, issues, docs, files, authentication, or network access before publishing."))
 
@@ -383,6 +459,38 @@ Managers replace Friday CSV exports with team dashboards.
     assert placeholder.status == "blocked"
     blocked_source = build_report(package, "# Source Intake\n\n## Source Health Report\n- Verdict: blocked\n")
     assert blocked_source.status == "blocked"
+    blocked_source_json = build_report(
+        package,
+        json.dumps(
+            {
+                "sources": [
+                    {
+                        "type": "issue",
+                        "ref": "issue:404",
+                        "repo": "owner/project",
+                        "status": "unavailable",
+                        "message": "not found",
+                    }
+                ],
+                "source_health": {
+                    "verdict": "blocked",
+                    "total_sources": 1,
+                    "ok_sources": 0,
+                    "unavailable_sources": 1,
+                    "source_backed_fact_count": 0,
+                    "reasons": ["1 source(s) could not be resolved."],
+                    "next_step": "Fix source refs.",
+                },
+            }
+        ),
+    )
+    assert blocked_source_json.status == "blocked"
+    assert "issue:404" in render_markdown(blocked_source_json)
+    embedded_blocked_source_json = build_report(
+        package,
+        source + "\n" + json.dumps({"source_health": {"verdict": "blocked", "reasons": ["JSON gate blocked."]}}),
+    )
+    assert embedded_blocked_source_json.status == "blocked"
 
     jsonl = "\n".join(
         [

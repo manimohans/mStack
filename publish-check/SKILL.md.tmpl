@@ -18,7 +18,7 @@ Use concrete evidence. Do not pass assets with unsupported metrics, invented quo
    Use the launch pack, product update, changelog, email, social post, internal note, sales note, support note, founder talking points, or any combined assets file that will be sent to an audience.
 
 2. Gather source context.
-   Use the evidence pack, source-intake output, launch brief, claim-check context, approved positioning, metrics, support notes, screenshots, and customer quotes. If source-intake output is `blocked`, treat the package as blocked until the missing source context is fixed. If files are available, run the installed publish-check helper.
+   Use the evidence pack, source-intake output, launch brief, claim-check context, approved positioning, metrics, support notes, screenshots, and customer quotes. Treat Markdown or JSON source-intake output with a `blocked` source-health verdict as blocked until the missing source context is fixed. If files are available, run the installed publish-check helper.
 
    ```bash
    helper="${CODEX_HOME:-$HOME/.codex}/skills/mstack/bin/mstack-publish-check"
@@ -26,6 +26,8 @@ Use concrete evidence. Do not pass assets with unsupported metrics, invented quo
    [ -x "$helper" ] || helper="bin/mstack-publish-check"
    "$helper" launch-assets.md evidence-pack.md source-intake.md
    ```
+
+   JSON source-intake reports from `mstack-source-intake --format json` are first-class publish-check inputs. Do not downgrade a blocked JSON source-health verdict to a review item.
 
 3. Check the package as a whole.
    Validate:
@@ -39,7 +41,7 @@ Use concrete evidence. Do not pass assets with unsupported metrics, invented quo
    Use:
    - `pass` when the package is source-backed, complete, and free of unresolved publish risks.
    - `needs review` when the package is close but has inferred claims, weak evidence coverage, missing channel fields, or non-blocking copy issues.
-   - `blocked` when unsupported metrics, quotes, absolute claims, missing source context, or unresolved placeholders remain.
+   - `blocked` when unsupported metrics, quotes, absolute claims, blocked or missing source context, or unresolved placeholders remain.
 
 5. Keep fixes specific.
    Name the exact channel, sentence, claim, source, or missing proof to fix. Do not give broad advice such as "make it stronger."
