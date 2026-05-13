@@ -4,6 +4,7 @@ Use mStack skills for product messaging and launch communication tasks.
 
 ## Skill Routing
 
+- Multi-step launch session, handoff manifest, or next-step status -> `/mstack-session`
 - Product context gathering -> `/mstack-product-context`
 - Source context and source health checks -> `/mstack-source-intake`
 - Launch proof and evidence packaging -> `/mstack-evidence-pack`

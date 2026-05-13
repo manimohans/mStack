@@ -1,5 +1,6 @@
 {
   "skills": [
+    "session",
     "source-intake",
     "product-context",
     "evidence-pack",
@@ -13,6 +14,7 @@
     "learn"
   ],
   "routing": {
+    "session": "Multi-step launch work that needs a durable handoff workspace, artifact manifest, status report, or next-step recommendation",
     "source-intake": "GitHub PRs, issues, changelogs, docs, specs, or local release files that need source context and a health report",
     "product-context": "Product ideas, release notes, PR summaries, customer pain, or launch context",
     "evidence-pack": "Launch proof scattered across PRs, issues, changelogs, metrics, screenshots, support notes, or customer quotes",

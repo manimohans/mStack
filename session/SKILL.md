@@ -1,0 +1,55 @@
+---
+name: session
+description: >-
+  Use when a product launch or update spans multiple mStack steps and needs a durable handoff
+  workspace, artifact manifest, status report, or next-step recommendation.
+---
+
+# Session
+
+## Standard
+
+Use a session when the launch will move through more than one mStack stage or needs to be resumed later. The session is not a replacement for the specialist skills. It is the handoff layer that keeps source intake, evidence, context, angle, draft, checks, launch assets, and learnings tied to one launch slug.
+
+Do not store invented proof or draft around missing artifacts. Use the manifest to make the gap visible, then run the next specialist skill.
+
+## Workflow
+
+1. Create the launch workspace.
+   Choose a short slug that names the release, feature, or customer problem. Add exact source refs when known.
+
+   ```bash
+   helper="${CODEX_HOME:-$HOME/.codex}/skills/mstack/bin/mstack-session"
+   [ -x "$helper" ] || helper="${CLAUDE_HOME:-$HOME/.claude}/skills/mstack/bin/mstack-session"
+   [ -x "$helper" ] || helper="bin/mstack-session"
+   "$helper" init RELEASE-SLUG --source SOURCE
+   ```
+
+2. Run the recommended specialist skill.
+   Use `status` or `next` to see the first incomplete stage and the command to run.
+
+   ```bash
+   "$helper" status RELEASE-SLUG
+   "$helper" next RELEASE-SLUG
+   ```
+
+3. Save each useful artifact into the session.
+   After a specialist skill returns useful output, write it to a file and record that file against the matching stage.
+
+   ```bash
+   "$helper" record RELEASE-SLUG source-intake source-intake.md
+   "$helper" record RELEASE-SLUG evidence-pack evidence-pack.jsonl
+   "$helper" record RELEASE-SLUG write-product-update draft.md
+   ```
+
+   Use `-` as the file argument to record stdin.
+
+4. Keep blocked work explicit.
+   If a stage cannot proceed, record the artifact with `--status blocked --note "reason"` or leave it pending. Do not skip source, proof, or claim gaps silently.
+
+5. Resume from the manifest.
+   When work restarts, run `status` first and follow the next-step command.
+
+## Output
+
+Return the session status first. Then state the next mStack command to run and the artifact path that should be produced.

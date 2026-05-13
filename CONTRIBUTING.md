@@ -34,6 +34,7 @@ Use a standalone copy when testing a packaged install:
 
 Default installs use the `mstack-` prefix:
 
+- `mstack-session`
 - `mstack-source-intake`
 - `mstack-product-context`
 - `mstack-evidence-pack`

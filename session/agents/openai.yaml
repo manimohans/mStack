@@ -1,0 +1,4 @@
+interface:
+  display_name: "Session"
+  short_description: "Track a launch workspace across mStack steps."
+  default_prompt: "Create or inspect an mStack launch session. Show the artifact manifest, stage status, and next specialist command to run."
