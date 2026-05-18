@@ -17,12 +17,13 @@ ok() {
 cd "$ROOT"
 
 bash -n setup
-for script in bin/mstack-check bin/mstack-claim-check bin/mstack-config bin/mstack-evidence-pack bin/mstack-publish-check bin/mstack-session bin/mstack-source-intake bin/mstack-team-init bin/mstack-uninstall bin/mstack-update-check bin/mstack-upgrade; do
+for script in bin/mstack-check bin/mstack-claim-check bin/mstack-config bin/mstack-evidence-pack bin/mstack-learn bin/mstack-publish-check bin/mstack-session bin/mstack-source-intake bin/mstack-team-init bin/mstack-uninstall bin/mstack-update-check bin/mstack-upgrade; do
   bash -n "$script"
 done
-python3 -m py_compile scripts/claim_check.py scripts/evidence_pack.py scripts/gen-skill-docs.py scripts/host_config.py scripts/messaging_eval.py scripts/publish_check.py scripts/session.py scripts/skill-check.py scripts/source_intake.py
+python3 -m py_compile scripts/claim_check.py scripts/evidence_pack.py scripts/gen-skill-docs.py scripts/host_config.py scripts/learn.py scripts/messaging_eval.py scripts/publish_check.py scripts/session.py scripts/skill-check.py scripts/source_intake.py
 python3 scripts/claim_check.py --self-test >/dev/null
 python3 scripts/evidence_pack.py --self-test >/dev/null
+python3 scripts/learn.py --self-test >/dev/null
 python3 scripts/publish_check.py --self-test >/dev/null
 python3 scripts/session.py --self-test >/dev/null
 python3 scripts/source_intake.py --self-test >/dev/null
@@ -88,6 +89,10 @@ test -x "$tmp_root/codex/skills/mstack/bin/mstack-session" \
   || fail "session helper was not installed"
 "$tmp_root/codex/skills/mstack/bin/mstack-session" --self-test >/dev/null \
   || fail "installed session helper failed self-test"
+test -x "$tmp_root/codex/skills/mstack/bin/mstack-learn" \
+  || fail "learn helper was not installed"
+"$tmp_root/codex/skills/mstack/bin/mstack-learn" --self-test >/dev/null \
+  || fail "installed learn helper failed self-test"
 test -x "$tmp_root/codex/skills/mstack/bin/mstack-claim-check" \
   || fail "claim-check helper was not installed"
 "$tmp_root/codex/skills/mstack/bin/mstack-claim-check" --self-test >/dev/null \
@@ -104,6 +109,8 @@ test -f "$tmp_root/codex-copy/skills/mstack/scripts/source_intake.py" \
   || fail "copy install did not include source-intake support script"
 test -f "$tmp_root/codex-copy/skills/mstack/scripts/session.py" \
   || fail "copy install did not include session support script"
+test -f "$tmp_root/codex-copy/skills/mstack/scripts/learn.py" \
+  || fail "copy install did not include learn support script"
 test -f "$tmp_root/codex-copy/skills/mstack/scripts/claim_check.py" \
   || fail "copy install did not include claim-check support script"
 test -f "$tmp_root/codex-copy/skills/mstack/scripts/evidence_pack.py" \

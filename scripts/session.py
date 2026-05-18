@@ -103,8 +103,8 @@ STAGES = [
         "learn",
         "Remember",
         "learnings.jsonl",
-        "mstack-learn save",
-        "Save durable voice, proof, positioning, and customer-language lessons.",
+        "mstack-learn export --format jsonl > {artifact}",
+        "Export durable voice, proof, positioning, and customer-language lessons.",
     ),
 ]
 

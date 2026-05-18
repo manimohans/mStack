@@ -29,7 +29,7 @@ Derive `{repo-slug}` from the git root path when available. If the current direc
 ## Workflow
 
 1. Locate existing learnings.
-   Read `~/.mstack/projects/{repo-slug}/learnings.jsonl` if it exists. Summarize only relevant entries.
+   Run `mstack-learn path` to find the project file, then read relevant entries with `mstack-learn search` or `mstack-learn export`.
 
 2. Decide the operation.
    - Search: return matching lessons grouped by type.
@@ -54,34 +54,28 @@ Derive `{repo-slug}` from the git root path when available. If the current direc
 Find the project learning file:
 
 ```bash
-repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd -P)"
-slug="$(printf '%s' "$repo_root" | tr '/[:space:]' '--' | tr -cd '[:alnum:]._-' | sed 's/^-*//;s/-*$//')"
-learn_file="$HOME/.mstack/projects/${slug:-default}/learnings.jsonl"
-mkdir -p "$(dirname "$learn_file")"
-printf '%s\n' "$learn_file"
+mstack-learn path
 ```
 
 Append a learning:
 
 ```bash
-python3 - "$learn_file" <<'PY'
-import json
-import sys
-from datetime import datetime, timezone
-from pathlib import Path
+mstack-learn save --type voice --source user "Replace this with the reusable lesson."
+```
 
-path = Path(sys.argv[1])
-path.parent.mkdir(parents=True, exist_ok=True)
-entry = {
-    "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-    "type": "voice",
-    "source": "user",
-    "learning": "Replace this with the reusable lesson.",
-    "example": ""
-}
-with path.open("a") as f:
-    f.write(json.dumps(entry, separators=(",", ":")) + "\n")
-PY
+Search and export learnings:
+
+```bash
+mstack-learn search "customer language"
+mstack-learn export --format markdown
+mstack-learn export --format jsonl > .mstack/launches/{slug}/learnings.jsonl
+```
+
+Prune duplicate or vague entries:
+
+```bash
+mstack-learn prune
+mstack-learn prune --apply
 ```
 
 ## Output

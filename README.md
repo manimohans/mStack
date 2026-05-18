@@ -126,6 +126,15 @@ bin/mstack-session next team-dashboards
 bin/mstack-session record team-dashboards source-intake source-intake.md
 ```
 
+Search, save, prune, or export reusable product messaging lessons:
+
+```bash
+bin/mstack-learn path
+bin/mstack-learn save --type voice --source user "Use concrete product language over generic launch intensity."
+bin/mstack-learn search "concrete product language"
+bin/mstack-learn export --format jsonl > .mstack/launches/team-dashboards/learnings.jsonl
+```
+
 Collect source context from GitHub refs and local files before writing a launch brief:
 
 ```bash
