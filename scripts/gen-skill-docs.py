@@ -16,6 +16,10 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILLS_FILE = ROOT / "config" / "skills.json"
 
 OPENAI_OVERRIDES = {
+    "doctor": (
+        "Diagnose mStack install and launch readiness.",
+        "Check whether mStack is installed correctly for Codex or Claude Code, whether runtime skills and support helpers are available, and whether a launch session can start.",
+    ),
     "session": (
         "Track a launch workspace across mStack steps.",
         "Create or inspect an mStack launch session. Show the artifact manifest, stage status, and next specialist command to run.",

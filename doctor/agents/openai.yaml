@@ -1,0 +1,4 @@
+interface:
+  display_name: "Doctor"
+  short_description: "Diagnose mStack install and launch readiness."
+  default_prompt: "Check whether mStack is installed correctly for Codex or Claude Code, whether runtime skills and support helpers are available, and whether a launch session can start."

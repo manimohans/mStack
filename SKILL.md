@@ -12,6 +12,8 @@ description: >-
 
 Use the smallest useful part of the loop:
 
+Before the loop, use **Doctor** when setup, host runtime skills, helper binaries, or launch-readiness need a diagnostic.
+
 1. **Session** - Use the installed session skill when multi-step launch work needs a durable artifact manifest and next-step handoff.
 2. **Source Intake** - Use the installed source-intake skill when PRs, issues, changelogs, docs, specs, or files need a health report before downstream work.
 3. **Evidence** - Use the installed evidence-pack skill when proof is scattered across PRs, metrics, screenshots, support notes, or customer quotes.
@@ -32,6 +34,7 @@ Before drafting, check whether durable project learnings exist and whether the u
 Commands below use the `mstack-` prefix. If the project was installed with `--no-prefix`, drop it (`mstack-angle-review` -> `angle-review`).
 
 - Multi-step launch session, handoff manifest, or "what is next?" -> `mstack-session`
+- Install, host runtime, helper, state, or launch-readiness diagnostic -> `mstack-doctor`
 - PRs, issues, changelogs, docs, specs, or files that need source health -> `mstack-source-intake`
 - Feature or release with rough notes -> `mstack-product-context`
 - Scattered proof, metrics, screenshots, or quotes -> `mstack-evidence-pack`

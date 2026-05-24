@@ -1,5 +1,6 @@
 {
   "skills": [
+    "doctor",
     "session",
     "source-intake",
     "product-context",
@@ -14,6 +15,7 @@
     "learn"
   ],
   "routing": {
+    "doctor": "Install, host-runtime, helper, state, and launch-readiness diagnostics",
     "session": "Multi-step launch work that needs a durable handoff workspace, artifact manifest, status report, or next-step recommendation",
     "source-intake": "GitHub PRs, issues, changelogs, docs, specs, or local release files that need source context and a health report",
     "product-context": "Product ideas, release notes, PR summaries, customer pain, or launch context",

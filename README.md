@@ -18,20 +18,21 @@ This is not a prompt dump. It is an ordered communication loop:
 ## Quick Start
 
 1. Install mStack.
-2. Run `/mstack-session` when the launch will span multiple steps and needs a durable handoff manifest.
-3. Run `/mstack-source-intake` when PRs, issues, changelogs, docs, specs, or files need a source health report.
-4. Run `/mstack-evidence-pack` when proof is scattered across PRs, metrics, screenshots, support notes, or customer quotes.
-5. Run `/mstack-product-context` with release notes, PRs, customer pain, or rough launch ideas.
-6. Run `/mstack-angle-review` to choose the strongest defensible thesis.
-7. Run `/mstack-write-product-update` to draft the core update.
-8. Run `/mstack-critique-update` before publishing.
-9. Run `/mstack-claim-check` when claims, metrics, quotes, or launch assets need proof review.
-10. Run `/mstack-launch-pack` for channel-specific launch assets.
-11. Run `/mstack-publish-check` when launch assets need one readiness verdict before handoff.
-12. After launch, run `/mstack-product-retro` to capture what worked.
-13. Run `/mstack-learn` when you want durable voice, proof, positioning, or customer-language lessons available for the next launch.
+2. Run `/mstack-doctor` when setup, host runtime skills, helper binaries, local state, or launch-readiness need a diagnostic.
+3. Run `/mstack-session` when the launch will span multiple steps and needs a durable handoff manifest.
+4. Run `/mstack-source-intake` when PRs, issues, changelogs, docs, specs, or files need a source health report.
+5. Run `/mstack-evidence-pack` when proof is scattered across PRs, metrics, screenshots, support notes, or customer quotes.
+6. Run `/mstack-product-context` with release notes, PRs, customer pain, or rough launch ideas.
+7. Run `/mstack-angle-review` to choose the strongest defensible thesis.
+8. Run `/mstack-write-product-update` to draft the core update.
+9. Run `/mstack-critique-update` before publishing.
+10. Run `/mstack-claim-check` when claims, metrics, quotes, or launch assets need proof review.
+11. Run `/mstack-launch-pack` for channel-specific launch assets.
+12. Run `/mstack-publish-check` when launch assets need one readiness verdict before handoff.
+13. After launch, run `/mstack-product-retro` to capture what worked.
+14. Run `/mstack-learn` when you want durable voice, proof, positioning, or customer-language lessons available for the next launch.
 
-Stop after step 6 if you only need the core update.
+Stop after the angle review if you only need the core update.
 
 ## Install
 
@@ -89,6 +90,14 @@ Validate the repo before publishing changes:
 
 ```bash
 bin/mstack-check
+```
+
+Diagnose an installed runtime before a launch workflow:
+
+```bash
+bin/mstack-doctor
+bin/mstack-doctor --host codex
+bin/mstack-doctor --network
 ```
 
 Regenerate skill docs and OpenAI host metadata after editing templates:
@@ -193,6 +202,7 @@ The generated routing block looks like this:
 Use mStack for product communication work:
 
 - Multi-step launch work that needs a durable handoff workspace, artifact manifest, status report, or next-step recommendation -> `/mstack-session`
+- Install, host-runtime, helper, state, or launch-readiness diagnostics -> `/mstack-doctor`
 - Product ideas, release notes, PR summaries, customer pain, or launch context -> `/mstack-product-context`
 - GitHub PRs, issues, changelogs, docs, specs, or local release files that need source context and a health report -> `/mstack-source-intake`
 - Launch proof scattered across PRs, issues, changelogs, metrics, screenshots, support notes, or customer quotes -> `/mstack-evidence-pack`
@@ -214,6 +224,9 @@ If mStack was installed with `--no-prefix`, remove `mstack-` from the command na
 
 ```text
 You: We shipped team dashboards. Need a launch post.
+You: /mstack-doctor
+Agent: [checks install, runtime skills, helper binaries, writable state, and launch session readiness]
+
 You: /mstack-session
 Agent: [creates .mstack/launches/team-dashboards/manifest.json and recommends the next command]
 
@@ -257,6 +270,7 @@ Each skill does one job and hands useful context to the next one.
 
 | Stage | Skill | Specialist | What it does |
 |---|---|---|---|
+| Doctor | `/mstack-doctor` | Readiness Diagnostic | Checks host installs, runtime skills, support helpers, local state, metadata, and session readiness. |
 | Session | `/mstack-session` | Launch Coordinator | Creates `.mstack/launches/{slug}/manifest.json`, tracks artifacts, and recommends the next mStack command. |
 | Source Intake | `/mstack-source-intake` | Source Reporter | Resolves PRs, issues, changelogs, docs, specs, and files into source context with a health verdict. |
 | Evidence | `/mstack-evidence-pack` | Proof Collector | Turns PRs, issues, changelogs, metrics, screenshots, support notes, and quotes into a reusable evidence bundle. |
@@ -277,6 +291,7 @@ Because the hard part is not writing sentences. The hard part is deciding what i
 mStack adds gates before and after drafting:
 
 - Gather private context before writing.
+- Diagnose install and launch-readiness before a multi-step workflow.
 - Keep multi-step launch artifacts in a resumable session manifest.
 - Check whether source refs actually resolve before downstream work.
 - Collect launch evidence before turning it into claims.
@@ -300,6 +315,7 @@ mStack/
 |   |-- mstack-check
 |   |-- mstack-claim-check
 |   |-- mstack-config
+|   |-- mstack-doctor
 |   |-- mstack-evidence-pack
 |   |-- mstack-publish-check
 |   |-- mstack-session
@@ -319,6 +335,7 @@ mStack/
 |   `-- migrations/
 |-- scripts/
 |   |-- claim_check.py
+|   |-- doctor.py
 |   |-- evidence_pack.py
 |   |-- gen-skill-docs.py
 |   |-- host_config.py
@@ -327,6 +344,7 @@ mStack/
 |   |-- session.py
 |   |-- skill-check.py
 |   `-- source_intake.py
+|-- doctor/
 |-- source-intake/
 |-- session/
 |-- product-context/
@@ -350,4 +368,4 @@ mStack/
 
 ## Status
 
-This is v0: a focused product messaging stack. The current useful layer is tool support for launch sessions, source intake, evidence packaging, pre-publish proof checks, and launch package readiness checks; the next layer is richer connectors for Slack launch notes, analytics, screenshots, and customer evidence.
+This is v0: a focused product messaging stack. The current useful layer is tool support for runtime diagnostics, launch sessions, source intake, evidence packaging, pre-publish proof checks, and launch package readiness checks; the next layer is richer connectors for Slack launch notes, analytics, screenshots, and customer evidence.

@@ -5,6 +5,7 @@
 When this repo is installed into an agent host, prefer the mStack workflow for product communication work:
 
 - Multi-step launch work that needs a durable handoff workspace, artifact manifest, status report, or next-step recommendation -> `mstack-session`
+- Install, host-runtime, helper, state, or launch-readiness diagnostics -> `mstack-doctor`
 - Product ideas, release notes, PR summaries, customer pain, or launch context -> `mstack-product-context`
 - GitHub PRs, issues, changelogs, docs, specs, or local release files that need source context and a health report -> `mstack-source-intake`
 - Launch proof scattered across PRs, issues, changelogs, metrics, screenshots, support notes, or customer quotes -> `mstack-evidence-pack`
