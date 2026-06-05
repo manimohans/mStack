@@ -22,7 +22,7 @@ OPENAI_OVERRIDES = {
     ),
     "session": (
         "Track a launch workspace across mStack steps.",
-        "Create or inspect an mStack launch session. Show the artifact manifest, stage status, and next specialist command to run.",
+        "Create, inspect, or audit an mStack launch session. Show the artifact manifest, readiness verdict, stage status, and next specialist command to run.",
     ),
     "source-intake": (
         "Resolve launch sources before downstream messaging.",

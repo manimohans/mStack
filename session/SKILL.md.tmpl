@@ -1,7 +1,7 @@
 ---
 name: session
 description: >-
-  Use when a product launch or update spans multiple mStack steps and needs a durable handoff workspace, artifact manifest, status report, or next-step recommendation.
+  Use when a product launch or update spans multiple mStack steps and needs a durable handoff workspace, artifact manifest, status report, readiness audit, or next-step recommendation.
 ---
 
 # Session
@@ -25,10 +25,11 @@ Do not store invented proof or draft around missing artifacts. Use the manifest 
    ```
 
 2. Run the recommended specialist skill.
-   Use `status` or `next` to see the first incomplete stage and the command to run.
+   Use `status`, `audit`, or `next` to see the first incomplete stage and the command to run.
 
    ```bash
    "$helper" status RELEASE-SLUG
+   "$helper" audit RELEASE-SLUG
    "$helper" next RELEASE-SLUG
    ```
 
@@ -47,8 +48,12 @@ Do not store invented proof or draft around missing artifacts. Use the manifest 
    If a stage cannot proceed, record the artifact with `--status blocked --note "reason"` or leave it pending. Do not skip source, proof, or claim gaps silently.
 
 5. Resume from the manifest.
-   When work restarts, run `status` first and follow the next-step command.
+   When work restarts, run `audit` first. Treat a `blocked` verdict as a proof or handoff problem to resolve before drafting or publishing.
+
+   ```bash
+   "$helper" audit RELEASE-SLUG --format json
+   ```
 
 ## Output
 
-Return the session status first. Then state the next mStack command to run and the artifact path that should be produced.
+Return the session audit verdict or status first. Then state the next mStack command to run and the artifact path that should be produced.

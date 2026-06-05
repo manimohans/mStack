@@ -17,6 +17,7 @@ from typing import Any
 
 
 STATUSES = {"pending", "in_progress", "complete", "blocked"}
+AUDIT_FORMATS = {"text", "json"}
 
 
 @dataclass(frozen=True)
@@ -26,6 +27,24 @@ class Stage:
     artifact: str
     command: str
     purpose: str
+
+
+@dataclass(frozen=True)
+class Finding:
+    severity: str
+    code: str
+    message: str
+    stage: str | None = None
+
+    def as_dict(self) -> dict[str, str]:
+        data = {
+            "severity": self.severity,
+            "code": self.code,
+            "message": self.message,
+        }
+        if self.stage:
+            data["stage"] = self.stage
+        return data
 
 
 STAGES = [
@@ -113,6 +132,21 @@ STAGE_BY_KEY = {stage.key: stage for stage in STAGES}
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def parse_utc(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    raw = value.strip()
+    if raw.endswith("Z"):
+        raw = raw[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(raw)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def slug_value(raw: str) -> str:
@@ -226,6 +260,171 @@ def next_stage(path: Path, manifest: dict[str, Any]) -> str | None:
     return None
 
 
+def stage_summary(path: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = []
+    for key in manifest["stage_order"]:
+        stage = STAGE_BY_KEY[key]
+        artifact = stage_artifact(path, manifest, key)
+        stage_data = manifest["stages"].get(key, {})
+        rows.append(
+            {
+                "key": key,
+                "label": stage.label,
+                "status": str(stage_data.get("status", "pending")),
+                "effective_status": effective_status(path, manifest, key),
+                "artifact": str(artifact),
+                "artifact_exists": artifact.exists(),
+                "updated_at": stage_data.get("updated_at"),
+                "notes": stage_data.get("notes", []),
+            }
+        )
+    return rows
+
+
+def audit_findings(path: Path, manifest: dict[str, Any], stale_days: int) -> list[Finding]:
+    findings: list[Finding] = []
+    sources = manifest.get("sources") or []
+    if not sources:
+        findings.append(Finding("warning", "missing-sources", "No source refs are stored in the session manifest."))
+
+    updated_at = parse_utc(manifest.get("updated_at"))
+    if updated_at is None:
+        findings.append(Finding("warning", "missing-updated-at", "The session manifest has no parseable updated_at timestamp."))
+    elif stale_days >= 0:
+        age = datetime.now(timezone.utc) - updated_at
+        if age.days >= stale_days:
+            findings.append(
+                Finding(
+                    "warning",
+                    "stale-session",
+                    f"The session has not been updated in {age.days} days.",
+                )
+            )
+
+    for row in stage_summary(path, manifest):
+        stage_key = str(row["key"])
+        raw_status = str(row["status"])
+        notes = row.get("notes") or []
+        if raw_status not in STATUSES:
+            findings.append(
+                Finding(
+                    "error",
+                    "invalid-status",
+                    f"Manifest status is {raw_status!r}; expected one of {', '.join(sorted(STATUSES))}.",
+                    stage_key,
+                )
+            )
+        if raw_status == "complete" and not row["artifact_exists"]:
+            findings.append(
+                Finding(
+                    "error",
+                    "complete-artifact-missing",
+                    f"Stage is marked complete but its artifact is missing: {row['artifact']}",
+                    stage_key,
+                )
+            )
+        if row["effective_status"] == "blocked":
+            note_text = ""
+            if notes:
+                latest = notes[-1]
+                if isinstance(latest, dict) and latest.get("text"):
+                    note_text = f" Latest note: {latest['text']}"
+            findings.append(Finding("error", "blocked-stage", f"Stage is blocked.{note_text}", stage_key))
+
+    completed = {row["key"] for row in stage_summary(path, manifest) if row["effective_status"] == "complete"}
+    late_stage_complete = any(stage in completed for stage in ("claim-check", "launch-pack", "publish-check"))
+    if late_stage_complete and "source-intake" not in completed:
+        findings.append(
+            Finding(
+                "error",
+                "claim-work-without-source-intake",
+                "Claim or publish work exists before source intake is complete.",
+                "source-intake",
+            )
+        )
+    if late_stage_complete and "evidence-pack" not in completed:
+        findings.append(
+            Finding(
+                "error",
+                "claim-work-without-evidence-pack",
+                "Claim or publish work exists before evidence collection is complete.",
+                "evidence-pack",
+            )
+        )
+
+    return findings
+
+
+def audit_next_stage(findings: list[Finding]) -> str | None:
+    for finding in findings:
+        if finding.severity == "error" and finding.stage in STAGE_BY_KEY:
+            return finding.stage
+    return None
+
+
+def audit_report(path: Path, manifest: dict[str, Any], stale_days: int) -> dict[str, Any]:
+    findings = audit_findings(path, manifest, stale_days)
+    next_key = audit_next_stage(findings) or next_stage(path, manifest)
+    severities = {finding.severity for finding in findings}
+    if "error" in severities:
+        verdict = "blocked"
+    elif next_key or "warning" in severities:
+        verdict = "needs_work"
+    else:
+        verdict = "ready"
+    if next_key and verdict != "blocked":
+        stage = STAGE_BY_KEY[next_key]
+        findings.append(Finding("info", "next-step", f"Next incomplete stage: {stage.label}.", next_key))
+
+    return {
+        "schema_version": 1,
+        "checked_at": utc_now(),
+        "verdict": verdict,
+        "slug": manifest["slug"],
+        "title": manifest["title"],
+        "manifest": str(path),
+        "updated_at": manifest.get("updated_at"),
+        "sources": manifest.get("sources", []),
+        "next_stage": next_key,
+        "next_command": command_for(path, manifest, next_key) if next_key else None,
+        "stages": stage_summary(path, manifest),
+        "findings": [finding.as_dict() for finding in findings],
+    }
+
+
+def print_audit_text(report: dict[str, Any]) -> None:
+    print(f"# mStack Session Audit: {report['title']}")
+    print()
+    print(f"- Verdict: {report['verdict']}")
+    print(f"- Slug: {report['slug']}")
+    print(f"- Manifest: {report['manifest']}")
+    print(f"- Updated: {report.get('updated_at', 'unknown')}")
+    if report.get("sources"):
+        print(f"- Sources: {', '.join(report['sources'])}")
+    print()
+    print("| Stage | Status | Artifact |")
+    print("|---|---|---|")
+    for row in report["stages"]:
+        exists = "yes" if row["artifact_exists"] else "no"
+        print(f"| {row['label']} | {row['effective_status']} | {row['artifact']} ({exists}) |")
+    print()
+    if report["findings"]:
+        print("Findings:")
+        for finding in report["findings"]:
+            stage = f" {finding['stage']}:" if finding.get("stage") else ""
+            print(f"- [{finding['severity']}]{stage} {finding['code']} - {finding['message']}")
+        print()
+    else:
+        print("Findings: none")
+        print()
+
+    if report["next_command"]:
+        print("Next command:")
+        print(report["next_command"])
+    else:
+        print("Next command: all tracked mStack stages are complete.")
+
+
 def init_session(args: argparse.Namespace) -> int:
     slug = slug_value(args.slug)
     root = Path(args.root)
@@ -292,6 +491,17 @@ def next_session(args: argparse.Namespace) -> int:
     return 0
 
 
+def audit_session(args: argparse.Namespace) -> int:
+    path = manifest_path(Path(args.root), args.slug)
+    manifest = load_manifest(path)
+    report = audit_report(path, manifest, args.stale_days)
+    if args.format == "json":
+        print(json.dumps(report, indent=2))
+    else:
+        print_audit_text(report)
+    return 0
+
+
 def record_session(args: argparse.Namespace) -> int:
     path = manifest_path(Path(args.root), args.slug)
     manifest = load_manifest(path)
@@ -354,6 +564,21 @@ def run_self_test() -> int:
             raise SystemExit("self-test failed: record status")
         if next_stage(path, manifest) != "evidence-pack":
             raise SystemExit("self-test failed: next stage")
+        report = audit_report(path, manifest, stale_days=7)
+        if report["verdict"] != "needs_work":
+            raise SystemExit("self-test failed: audit verdict")
+        if report["next_stage"] != "evidence-pack":
+            raise SystemExit("self-test failed: audit next stage")
+        artifact = stage_artifact(path, manifest, "source-intake")
+        artifact.unlink()
+        report = audit_report(path, manifest, stale_days=7)
+        if report["verdict"] != "blocked":
+            raise SystemExit("self-test failed: audit missing artifact verdict")
+        if report["next_stage"] != "source-intake":
+            raise SystemExit("self-test failed: audit missing artifact next stage")
+        codes = {finding["code"] for finding in report["findings"]}
+        if "complete-artifact-missing" not in codes:
+            raise SystemExit("self-test failed: audit missing artifact finding")
     print("OK session self-test")
     return 0
 
@@ -378,6 +603,12 @@ def build_parser() -> argparse.ArgumentParser:
     next_cmd = sub.add_parser("next", help="show the next incomplete stage")
     next_cmd.add_argument("slug")
     next_cmd.set_defaults(func=next_session)
+
+    audit = sub.add_parser("audit", help="show a session readiness verdict")
+    audit.add_argument("slug")
+    audit.add_argument("--format", default="text", choices=sorted(AUDIT_FORMATS))
+    audit.add_argument("--stale-days", type=int, default=7, help="warn when the session is at least this many days old")
+    audit.set_defaults(func=audit_session)
 
     record = sub.add_parser("record", help="record a stage artifact")
     record.add_argument("slug")

@@ -131,6 +131,8 @@ Create and resume a launch session:
 ```bash
 bin/mstack-session init team-dashboards --source pr:123 --source docs/release-notes.md
 bin/mstack-session status team-dashboards
+bin/mstack-session audit team-dashboards
+bin/mstack-session audit team-dashboards --format json
 bin/mstack-session next team-dashboards
 bin/mstack-session record team-dashboards source-intake source-intake.md
 ```
@@ -230,6 +232,9 @@ Agent: [checks install, runtime skills, helper binaries, writable state, and lau
 You: /mstack-session
 Agent: [creates .mstack/launches/team-dashboards/manifest.json and recommends the next command]
 
+You: /mstack-session audit team-dashboards
+Agent: [returns one readiness verdict across missing artifacts, blocked stages, stale sessions, proof gaps, and the next command]
+
 You: /mstack-source-intake
 Agent: [checks source availability, lists resolved PRs/docs, and returns a source health verdict]
 
@@ -271,7 +276,7 @@ Each skill does one job and hands useful context to the next one.
 | Stage | Skill | Specialist | What it does |
 |---|---|---|---|
 | Doctor | `/mstack-doctor` | Readiness Diagnostic | Checks host installs, runtime skills, support helpers, local state, metadata, and session readiness. |
-| Session | `/mstack-session` | Launch Coordinator | Creates `.mstack/launches/{slug}/manifest.json`, tracks artifacts, and recommends the next mStack command. |
+| Session | `/mstack-session` | Launch Coordinator | Creates `.mstack/launches/{slug}/manifest.json`, tracks artifacts, audits handoff readiness, and recommends the next mStack command. |
 | Source Intake | `/mstack-source-intake` | Source Reporter | Resolves PRs, issues, changelogs, docs, specs, and files into source context with a health verdict. |
 | Evidence | `/mstack-evidence-pack` | Proof Collector | Turns PRs, issues, changelogs, metrics, screenshots, support notes, and quotes into a reusable evidence bundle. |
 | Context | `/mstack-product-context` | Product Reporter | Turns messy release notes, customer pain, PRs, support tickets, and founder notes into a launch brief. |
@@ -293,6 +298,7 @@ mStack adds gates before and after drafting:
 - Gather private context before writing.
 - Diagnose install and launch-readiness before a multi-step workflow.
 - Keep multi-step launch artifacts in a resumable session manifest.
+- Audit a launch session before resume so missing artifacts, blocked stages, stale state, and proof gaps are visible.
 - Check whether source refs actually resolve before downstream work.
 - Collect launch evidence before turning it into claims.
 - Choose one angle before generating copy.
